@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0d0b1e">
+<title>少數決大逃殺</title>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<style>
+:root{--A:#ff4d6d;--B:#2ec4b6;--C:#ffbe0b;--bg:#0d0b1e;--card:#1b1838;--txt:#f4f2ff;--mut:#9a95c4;--ok:#2ee59d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at top,#241d52 0%,var(--bg) 70%) fixed;color:var(--txt);
+  font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-size:14px;color:var(--mut)}
+header .t{font-weight:900;color:var(--txt);font-size:16px}
+#langBtn{background:none;border:1px solid #3a3570;color:var(--mut);border-radius:999px;padding:4px 10px;font-size:13px}
+#dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-left:8px;vertical-align:middle}
+#dot.bad{background:var(--A);animation:bl 1s infinite}@keyframes bl{50%{opacity:.2}}
+main{padding:6px 18px 30px;max-width:520px;margin:0 auto;text-align:center}
+h1{font-size:30px;margin:18px 0 6px;font-weight:900;background:linear-gradient(90deg,var(--A),var(--C),var(--B));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mut{color:var(--mut)}
+.big{font-size:22px;font-weight:700;margin:14px 0}
+.btn{display:block;width:100%;padding:18px;margin:12px 0;border:0;border-radius:16px;font-size:21px;font-weight:700;color:#fff;background:#2c2858;font-family:inherit}
+.btn.go{background:linear-gradient(90deg,#1f8f5f,#2ec4b6)}
+.btn:active{transform:scale(.98)}
+input{width:100%;padding:16px;font-size:22px;border-radius:14px;border:2px solid #3a3570;background:#0d0b1e;color:#fff;text-align:center;font-family:inherit;-webkit-user-select:text;user-select:text}
+.err{color:#ff8fa3;min-height:22px;margin-top:6px}
+.card{background:var(--card);border-radius:18px;padding:18px;margin:14px 0}
+.rule{font-size:15px;line-height:1.6;color:var(--mut)}
+.rule b{color:var(--C)}
+.spin{width:44px;height:44px;border:5px solid #3a3570;border-top-color:var(--C);border-radius:50%;margin:16px auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.q{font-size:25px;font-weight:900;margin:6px 0 2px;line-height:1.35}
+.round{font-size:14px;color:var(--mut);margin-top:4px}
+/* 三等份圓圈 */
+.wheel{position:relative;width:min(88vw,400px);aspect-ratio:1;margin:14px auto 6px}
+.wheel svg{width:100%;height:100%;overflow:visible}
+.wheel path{stroke:#0d0b1e;stroke-width:2.5;transition:opacity .3s, transform .3s, filter .3s;transform-origin:0 0;cursor:pointer}
+.wheel.locked path{cursor:default}
+.wheel path.dim{opacity:.25}
+.wheel path.sel{transform:scale(1.05);filter:drop-shadow(0 0 8px #fff)}
+.wheel .lab{position:absolute;width:34%;transform:translate(-50%,-50%);font-weight:900;font-size:clamp(15px,4.6vw,21px);line-height:1.2;
+  pointer-events:none;color:#fff;text-shadow:0 1px 3px #0006;word-break:break-word;transition:opacity .3s}
+.wheel .lab.l2{color:#2a1e00;text-shadow:none}
+.wheel .lab.dim{opacity:.35}
+.wheel .lab .ok{display:block;font-size:.72em;margin-top:4px;background:#fff;color:#111;border-radius:999px;padding:2px 6px;text-shadow:none}
+.center{position:absolute;left:50%;top:50%;width:25%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#0d0b1e;
+  border:4px solid #fff3;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,8vw,36px);font-weight:900;pointer-events:none}
+.center.hurry{color:var(--A);border-color:var(--A)}
+.center.small{font-size:14px}
+.status{min-height:30px;font-size:18px;font-weight:700;margin-top:6px}
+/* 結果 */
+.res{font-size:58px;font-weight:900;margin:26px 0 6px}
+.res.live{color:var(--ok);text-shadow:0 0 30px #2ee59d88;animation:zoom .6s cubic-bezier(.2,1.6,.4,1)}
+.res.dead{color:#8a87a8;filter:grayscale(1)}
+@keyframes zoom{0%{transform:scale(.2)}100%{transform:scale(1)}}
+.rows{text-align:left;margin-top:14px}
+.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--card);margin:8px 0;font-size:18px}
+.row .sw{width:16px;height:16px;border-radius:50%;flex:0 0 auto}
+.row .nm{flex:1}
+.row .n{font-weight:900;font-size:22px}
+.row.win{outline:3px solid var(--ok)}
+.row .tag{font-size:13px;background:var(--ok);color:#06331f;border-radius:999px;padding:2px 8px;margin-left:6px}
+.row.mine .nm::after{content:" ←";color:var(--C)}
+.conf{position:fixed;top:-20px;width:10px;height:14px;z-index:9;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.langs .btn:nth-child(1){background:var(--A)}.langs .btn:nth-child(2){background:#3a6df0}.langs .btn:nth-child(3){background:#1f8f5f}
+.demo{position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:12px;color:var(--C);background:#0008;padding:4px}
+.winners{font-size:28px;font-weight:900;color:var(--C);line-height:1.5}
+</style>
+</head>
+<body>
+<header><span class="t" id="hTitle">少數決大逃殺</span><span><button id="langBtn">🌐</button><span id="dot"></span></span></header>
+<main id="app"></main>
+<div class="demo" id="demoNote" style="display:none">DEMO 單機試玩模式（還沒接上 Firebase）</div>
+
+<script>
+const { CFG, ROOT, DEMO, Demo, SV, rid, esc } = MinorityCommon;
+const POLL = CFG.pollMs || 1500, GRACE = CFG.graceMs ?? 800;
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const COLORS = ["var(--A)", "var(--B)", "var(--C)"];
+
+const T = {
+  zh: { title: "少數決大逃殺", enterName: "輸入你的名字", namePh: "最多 10 個字", join: "加入遊戲", nameReq: "請輸入名字",
+    joined: "已加入，等待主持人開始", joinedN: "目前已加入 {n} 人", you: "你的名字",
+    rule: "每題選一個選項，選「<b>最少人</b>」選的那一個才能存活！<br>時間內沒作答直接淘汰。",
+    round: "第 {n} 輪", ready: "準備", tap: "點一個選項（送出後不能改）", sending: "送出中…", sent: "✓ 已送出",
+    late: "時間已過，這次沒有送出", timeUp: "時間到！等待公布結果…", noAns: "你沒有在時間內作答",
+    live: "存活！", dead: "淘汰…", voidR: "全部選同一個，這輪不算！", noR: "沒有人作答，這輪不算", tieR: "並列最少，都存活！",
+    ppl: "{n} 人", noneRow: "未作答", survive: "存活", spect: "觀戰中", left: "還剩 {n} 人",
+    lateJoin: "遊戲已經開始了，你可以一起觀戰", waitNext: "等待下一題…", answering: "作答中…", winner: "你是贏家！",
+    over: "遊戲結束", winners: "贏家", noHost: "等待主持人開啟遊戲…", joinFail: "加入失敗，請再試一次", closed: "遊戲已經開始，無法加入", lang: "語言" },
+  en: { title: "Minority Rules", enterName: "Enter your name", namePh: "Up to 10 characters", join: "Join", nameReq: "Please enter a name",
+    joined: "You're in! Waiting for the host", joinedN: "{n} players joined", you: "You are",
+    rule: "Pick one option each round. Only the option picked by the <b>FEWEST</b> people survives!<br>No answer in time = eliminated.",
+    round: "Round {n}", ready: "Ready", tap: "Tap one option (can't change after)", sending: "Sending…", sent: "✓ Sent",
+    late: "Too late — not sent", timeUp: "Time's up! Waiting for results…", noAns: "You didn't answer in time",
+    live: "SURVIVED!", dead: "ELIMINATED…", voidR: "Everyone picked the same — round doesn't count!", noR: "No one answered — round doesn't count", tieR: "Tied for fewest — both survive!",
+    ppl: "{n}", noneRow: "No answer", survive: "Survive", spect: "Spectating", left: "{n} players left",
+    lateJoin: "The game has started — you can watch", waitNext: "Waiting for the next question…", answering: "Answering…", winner: "YOU WIN!",
+    over: "Game over", winners: "Winners", noHost: "Waiting for the host to open the game…", joinFail: "Couldn't join, please try again", closed: "Game already started — can't join", lang: "Language" },
+  vi: { title: "Đấu Trường Thiểu Số", enterName: "Nhập tên của bạn", namePh: "Tối đa 10 ký tự", join: "Tham gia", nameReq: "Vui lòng nhập tên",
+    joined: "Đã tham gia, chờ MC bắt đầu", joinedN: "Đã có {n} người tham gia", you: "Tên của bạn",
+    rule: "Mỗi vòng chọn một đáp án. Chỉ đáp án <b>ÍT</b> người chọn nhất được sống sót!<br>Không trả lời kịp sẽ bị loại.",
+    round: "Vòng {n}", ready: "Chuẩn bị", tap: "Chạm chọn một đáp án (không thể đổi)", sending: "Đang gửi…", sent: "✓ Đã gửi",
+    late: "Quá giờ — không gửi được", timeUp: "Hết giờ! Chờ công bố kết quả…", noAns: "Bạn không trả lời kịp",
+    live: "SỐNG SÓT!", dead: "BỊ LOẠI…", voidR: "Tất cả chọn giống nhau — vòng này không tính!", noR: "Không ai trả lời — vòng này không tính", tieR: "Đồng hạng ít nhất — đều sống sót!",
+    ppl: "{n} người", noneRow: "Không trả lời", survive: "Sống", spect: "Đang xem", left: "Còn {n} người",
+    lateJoin: "Trò chơi đã bắt đầu — bạn có thể xem", waitNext: "Chờ câu tiếp theo…", answering: "Đang trả lời…", winner: "BẠN THẮNG!",
+    over: "Kết thúc", winners: "Người thắng", noHost: "Đang chờ MC mở trò chơi…", joinFail: "Không tham gia được, thử lại", closed: "Trò chơi đã bắt đầu — không thể tham gia", lang: "Ngôn ngữ" }
+};
+let lang = localStorage.getItem("minority_lang");
+const t = (k, n) => (T[lang] || T.zh)[k].replace("{n}", n);
+
+let pid = localStorage.getItem("minority_pid");
+if (!pid || pid.length < 12) { pid = "p" + rid(19); localStorage.setItem("minority_pid", pid); }
+
+// ================= 資料庫存取：手機只用一般網頁請求（不開即時連線） =================
+const base = (CFG.firebase.databaseURL || "").replace(/\/+$/, "") + "/" + ROOT + "/";
+const api = DEMO ? {
+  async get(p) { await sleep(30); return Demo.get(ROOT + "/" + p); },
+  async put(p, v) { // 模擬資料庫規則
+    await sleep(60);
+    const pub = Demo.get(ROOT + "/pub") || {}, now = Date.now();
+    if (Demo.get(ROOT + "/" + p) != null && !p.startsWith("ping/")) return { ok: false, status: 401 };
+    if (p.startsWith("players/") && pub.phase !== "lobby") return { ok: false, status: 401 };
+    if (p.startsWith("answers/")) {
+      const [, rk, id] = p.split("/");
+      const me = Demo.get(ROOT + "/players/" + id) || {};
+      if (rk !== pub.rkey || pub.phase !== "answer" || now > pub.deadline + GRACE || me.st !== "alive") return { ok: false, status: 401 };
+    }
+    Demo.update({ [ROOT + "/" + p]: v });
+    return { ok: true, status: 200, data: Demo.get(ROOT + "/" + p) };
+  }
+} : {
+  async get(p) {
+    const r = await fetch(base + p + ".json", { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  },
+  async put(p, v) {
+    const r = await fetch(base + p + ".json", { method: "PUT", body: JSON.stringify(v) });
+    let data = null; try { data = await r.json(); } catch (e) {}
+    return { ok: r.ok, status: r.status, data };
+  }
+};
+
+// ================= 狀態 =================
+let pub = undefined, me = null, meLoaded = false, lastRev = null, offset = 0, netOk = true, viewKey = "", lastJoined = -1;
+const sNow = () => Date.now() + offset;
+const ansKey = rk => "minority_ans_" + rk;
+const getMine = rk => { try { return JSON.parse(localStorage.getItem(ansKey(rk))); } catch (e) { return null; } };
+const setMine = (rk, v) => localStorage.setItem(ansKey(rk), JSON.stringify(v));
+
+async function syncTime() {
+  if (DEMO) return;
+  try {
+    const t0 = Date.now();
+    const r = await api.put("ping/" + pid, SV);
+    let s = r.data;
+    const t1 = Date.now();
+    if (typeof s !== "number") s = await api.get("ping/" + pid);
+    if (typeof s === "number") offset = s - (t0 + t1) / 2;
+  } catch (e) {}
+}
+async function loadMe() {
+  try { me = await api.get("players/" + pid); meLoaded = true; } catch (e) {}
+}
+
+async function poll() {
+  try {
+    const p = await api.get("pub");
+    netOk = true;
+    const revChanged = !p || !pub || p.rev !== lastRev || p.gid !== (pub && pub.gid);
+    pub = p;
+    if (revChanged || !meLoaded || (me && !me.dname)) await loadMe();
+    lastRev = p ? p.rev : null;
+  } catch (e) { netOk = false; }
+  $("dot").classList.toggle("bad", !netOk);
+  render();
+  setTimeout(poll, POLL);
+}
+
+// ================= 畫面 =================
+function render() {
+  if (!lang) return renderLang();
+  $("hTitle").textContent = t("title");
+  if (pub === undefined) return setView("loading", () => `<div class="spin"></div>`);
+  if (!pub) return setView("nohost", () => `<h1>${t("title")}</h1><div class="spin"></div><p class="mut">${t("noHost")}</p>`);
+  const ph = pub.phase;
+  if (!me) {
+    if (ph === "lobby") return renderName();
+    return renderSpect();
+  }
+  if (ph === "lobby") return renderWait();
+  if (ph === "answer") return me.st === "alive" ? renderAnswer() : renderSpect();
+  if (ph === "reveal") {
+    if (me.st === "alive" || me.outRound === pub.round) return renderResult();
+    return renderSpect();
+  }
+  if (ph === "end") return renderEnd();
+}
+function setView(key, html, after) {
+  if (key === viewKey) return false;
+  viewKey = key; $("app").innerHTML = html(); if (after) after();
+  return true;
+}
+
+function renderLang() {
+  $("hTitle").textContent = "少數決大逃殺";
+  setView("lang", () => `<h1>少數決大逃殺</h1><p class="mut">Minority Rules · Đấu Trường Thiểu Số</p>
+    <div class="langs"><button class="btn" data-l="zh">中文</button><button class="btn" data-l="en">English</button><button class="btn" data-l="vi">Tiếng Việt</button></div>`,
+    () => document.querySelectorAll("[data-l]").forEach(b => b.onclick = () => { lang = b.dataset.l; localStorage.setItem("minority_lang", lang); viewKey = ""; render(); }));
+}
+$("langBtn").onclick = () => { lang = null; viewKey = ""; render(); };
+
+function renderName() {
+  setView("name|" + lang, () => `<h1>${t("title")}</h1><div class="card rule">${t("rule")}</div>
+    <div class="big">${t("enterName")}</div>
+    <input id="nm" maxlength="20" placeholder="${t("namePh")}" autocomplete="off" value="${esc(localStorage.getItem("minority_name") || "")}">
+    <div class="err" id="nmErr"></div><button class="btn go" id="joinBtn">${t("join")}</button>`,
+    () => {
+      const inp = $("nm");
+      inp.oninput = () => { const a = Array.from(inp.value); if (a.length > 10) inp.value = a.slice(0, 10).join(""); };
+      inp.onkeydown = e => { if (e.key === "Enter") join(); };
+      $("joinBtn").onclick = join;
+    });
+}
+async function join() {
+  const name = Array.from($("nm").value.trim()).slice(0, 10).join("");
+  if (!name) { $("nmErr").textContent = t("nameReq"); return; }
+  $("joinBtn").disabled = true; $("nmErr").textContent = "";
+  localStorage.setItem("minority_name", name);
+  try {
+    const r = await api.put("players/" + pid, { name, lang, joinedAt: SV });
+    if (!r.ok) {
+      await loadMe();
+      if (!me) { $("nmErr").textContent = (pub && pub.phase !== "lobby") ? t("closed") : t("joinFail"); $("joinBtn").disabled = false; return; }
+    }
+    await loadMe(); viewKey = ""; render();
+  } catch (e) { $("nmErr").textContent = t("joinFail"); $("joinBtn").disabled = false; }
+}
+
+function renderWait() {
+  const nm = me.dname || me.name;
+  setView("wait|" + lang + "|" + nm, () => `<h1>${t("title")}</h1>
+    <div class="card"><div class="mut">${t("you")}</div><div class="big" style="font-size:30px;margin:6px 0">${esc(nm)}</div></div>
+    <div class="big" style="color:var(--ok)">${t("joined")}</div><div class="spin"></div>
+    <div class="mut" id="jn"></div><div class="card rule">${t("rule")}</div>`);
+  const jn = $("jn"); if (jn) jn.textContent = t("joinedN", pub.joined || 0);
+}
+
+function qText() { return (pub.q && (pub.q[lang] || pub.q.zh)) || ""; }
+function optText(i) { return pub.q && pub.q.o ? ((pub.q.o[lang] || pub.q.o.zh)[i]) : ""; }
+
+function wheelHTML(selectable) {
+  const R = 96, pt = a => [R * Math.cos(a * Math.PI / 180), R * Math.sin(a * Math.PI / 180)].map(v => v.toFixed(2)).join(",");
+  let paths = "", labs = "";
+  for (let i = 0; i < 3; i++) {
+    const a0 = -90 + i * 120, a1 = a0 + 120, am = (a0 + 60) * Math.PI / 180;
+    paths += `<path data-i="${i}" d="M0,0 L${pt(a0)} A${R},${R} 0 0 1 ${pt(a1)} Z" fill="${COLORS[i]}"/>`;
+    labs += `<div class="lab l${i}" id="lab${i}" style="left:${50 + Math.cos(am) * 27}%;top:${50 + Math.sin(am) * 27}%">${esc(optText(i))}</div>`;
+  }
+  return `<div class="wheel ${selectable ? "" : "locked"}" id="wheel"><svg viewBox="-100 -100 200 200">${paths}</svg>${labs}<div class="center" id="cd"></div></div>`;
+}
+function renderAnswer() {
+  const rk = pub.rkey;
+  const mine = getMine(rk);
+  const key = "ans|" + lang + "|" + rk + "|" + (mine ? mine.c + mine.s : "-");
+  setView(key, () => `<div class="round">${t("round", pub.round)} · ${t("left", pub.alive)}</div>
+    <div class="q">${esc(qText())}</div>${wheelHTML(!mine)}<div class="status" id="st"></div>`,
+    () => {
+      document.querySelectorAll("#wheel path").forEach(p => p.addEventListener("pointerdown", e => { e.preventDefault(); choose(+p.dataset.i); }));
+      if (mine) markChoice(mine.c, mine.s);
+    });
+  tick();
+}
+function markChoice(c, s) {
+  document.querySelectorAll("#wheel path").forEach(p => { const i = +p.dataset.i; p.classList.toggle("sel", i === c); p.classList.toggle("dim", i !== c); });
+  for (let i = 0; i < 3; i++) $("lab" + i).classList.toggle("dim", i !== c);
+  const lab = $("lab" + c);
+  if (lab && s === "sent" && !lab.querySelector(".ok")) lab.insertAdjacentHTML("beforeend", `<span class="ok">${t("sent")}</span>`);
+  $("wheel").classList.add("locked");
+}
+let sending = false;
+async function choose(c) {
+  if (!pub || pub.phase !== "answer" || sending) return;
+  const rk = pub.rkey, now = sNow();
+  if (getMine(rk) || now < pub.startAt || now > pub.deadline) return;
+  sending = true;
+  setMine(rk, { c, s: "sending" }); markChoice(c, "sending"); $("st").textContent = t("sending");
+  if (navigator.vibrate) navigator.vibrate(30);
+  let result = "late";
+  for (let i = 0; i < 5; i++) {
+    try {
+      const r = await api.put("answers/" + rk + "/" + pid, { c, t: SV });
+      if (r.ok) { result = "sent"; break; }
+      // 被拒絕：可能是上一次其實已經送成功（回應掉了），或真的超時
+      result = (i > 0 && sNow() <= pub.deadline + GRACE) ? "sent" : "late";
+      break;
+    } catch (e) { await sleep(400); }
+  }
+  sending = false;
+  setMine(rk, { c, s: result });
+  viewKey = ""; render();
+}
+function tick() {
+  const cd = $("cd"), st = $("st");
+  if (!cd || !pub || pub.phase !== "answer") return;
+  const now = sNow(), left = pub.deadline - now, mine = getMine(pub.rkey);
+  if (now < pub.startAt) { cd.textContent = t("ready"); cd.className = "center small"; }
+  else { cd.textContent = Math.max(0, Math.ceil(left / 1000)); cd.className = "center" + (left < 3500 ? " hurry" : ""); }
+  if (st) {
+    if (mine && mine.s === "sent") st.textContent = left > 0 ? t("sent") : t("timeUp");
+    else if (mine && mine.s === "late") st.textContent = t("late");
+    else if (mine) st.textContent = t("sending");
+    else st.textContent = left > 0 ? (now < pub.startAt ? "" : t("tap")) : t("noAns");
+  }
+  if (left <= 0 && !mine) $("wheel") && $("wheel").classList.add("locked");
+}
+setInterval(tick, 200);
+
+function countRows() {
+  const c = pub.counts || [0, 0, 0], so = pub.survOpts || [], mine = getMine(pub.rkey);
+  let h = "";
+  for (let i = 0; i < 3; i++) {
+    h += `<div class="row ${so.includes(i) ? "win" : ""} ${mine && mine.c === i && mine.s === "sent" ? "mine" : ""}">
+      <span class="sw" style="background:${COLORS[i]}"></span><span class="nm">${esc(optText(i))}${so.includes(i) ? `<span class="tag">${t("survive")}</span>` : ""}</span>
+      <span class="n">${t("ppl", c[i] || 0)}</span></div>`;
+  }
+  if (pub.none) h += `<div class="row"><span class="sw" style="background:#4a4766"></span><span class="nm">${t("noneRow")}</span><span class="n">${t("ppl", pub.none)}</span></div>`;
+  return `<div class="rows">${h}</div>`;
+}
+function resultNote() {
+  return pub.result === "allSame" ? t("voidR") : pub.result === "noAnswers" ? t("noR") : pub.result === "tie" ? t("tieR") : "";
+}
+function renderResult() {
+  const live = me.st === "alive";
+  const fresh = setView("res|" + lang + "|" + pub.rkey + "|" + live, () => `<div class="round">${t("round", pub.round)}</div>
+    <div class="res ${live ? "live" : "dead"}">${live ? t("live") : t("dead")}</div>
+    <div class="mut">${esc(resultNote())}</div><div class="q" style="font-size:19px;margin-top:14px">${esc(qText())}</div>${countRows()}
+    <p class="mut">${t("left", pub.aliveAfter)}</p><p class="mut">${live ? t("waitNext") : ""}</p>`);
+  if (fresh) { if (live) confetti(); if (navigator.vibrate) navigator.vibrate(live ? [80, 60, 80] : 300); }
+}
+function renderSpect() {
+  const ph = pub.phase, notJoined = !me;
+  let body = "";
+  if (ph === "answer") body = `<div class="q">${esc(qText())}</div><p class="mut">${t("answering")}</p>`;
+  else if (ph === "reveal") body = `<div class="q" style="font-size:19px">${esc(qText())}</div>${countRows()}`;
+  const left = ph === "reveal" ? pub.aliveAfter : pub.alive;
+  setView("spect|" + lang + "|" + ph + "|" + pub.rkey, () => `<div class="big">👀 ${t("spect")}</div>
+    ${notJoined ? `<p class="mut">${t("lateJoin")}</p>` : `<p class="mut">${esc(me.dname || me.name)} · ${t("dead")}</p>`}
+    <div class="card"><div class="round">${t("round", pub.round)}</div><div class="big" style="color:var(--C)">${t("left", left || 0)}</div></div>${body}`);
+}
+function renderEnd() {
+  const w = pub.winners || [];
+  const win = me && me.st === "alive";
+  const fresh = setView("end|" + lang + "|" + pub.gid + "|" + win, () => `${win ? `<div class="res live">${t("winner")}</div>` : `<div class="big">${t("over")}</div>`}
+    <div class="card"><div class="mut">🏆 ${t("winners")}</div><div class="winners">${w.map(esc).join("<br>")}</div></div>`);
+  if (fresh && win) { confetti(); setTimeout(confetti, 900); }
+}
+function confetti() {
+  const cols = ["#ff4d6d", "#2ec4b6", "#ffbe0b", "#fff", "#a78bfa", "#2ee59d"];
+  for (let i = 0; i < 70; i++) {
+    const d = document.createElement("div"); d.className = "conf";
+    d.style.left = Math.random() * 100 + "vw"; d.style.background = cols[i % cols.length];
+    d.style.animationDuration = 1.8 + Math.random() * 1.8 + "s"; d.style.animationDelay = Math.random() * .5 + "s";
+    document.body.appendChild(d); setTimeout(() => d.remove(), 4200);
+  }
+}
+
+// 盡量讓螢幕不要自動關閉
+async function keepAwake() { try { if (navigator.wakeLock) await navigator.wakeLock.request("screen"); } catch (e) {} }
+document.addEventListener("visibilitychange", () => { if (!document.hidden) keepAwake(); });
+document.addEventListener("click", keepAwake, { once: true });
+
+if (DEMO) $("demoNote").style.display = "block";
+render();
+syncTime().then(() => { poll(); setInterval(syncTime, 60000); });
+</script>
+</body>
+</html>

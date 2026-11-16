@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>少數決大逃殺｜大螢幕</title>
+<script src="config.js"></script>
+<script src="questions.js"></script>
+<script src="common.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+:root{--A:#ff4d6d;--B:#2ec4b6;--C:#ffbe0b;--bg:#0d0b1e;--card:#1b1838;--txt:#f4f2ff;--mut:#9a95c4;--ok:#2ee59d}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:radial-gradient(ellipse at top,#241d52 0%,var(--bg) 60%);color:var(--txt);
+  font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;overflow:hidden}
+.view{position:absolute;inset:0 0 64px 0;display:none;padding:2.2vh 3vw}
+.view.on{display:flex}
+h1,h2,h3{margin:0}
+.mut{color:var(--mut)}
+/* ---------- lobby ---------- */
+#vLobby{gap:3vw;align-items:stretch}
+.qrbox{flex:0 0 34vw;background:#fff;border-radius:24px;padding:2vw;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#222}
+#qr{width:28vw;height:28vw;display:flex;align-items:center;justify-content:center}
+#qr svg{width:100%;height:100%}
+#qrFallback{font-size:1.4vw;word-break:break-all;text-align:center}
+.qrbox .url{margin-top:1vw;font-size:1.15vw;word-break:break-all;text-align:center;color:#555}
+.qrbox .scan{font-size:2vw;font-weight:900;margin-top:.6vw}
+.lobbyR{flex:1;display:flex;flex-direction:column;min-width:0}
+.title{font-size:5.4vw;font-weight:900;letter-spacing:.05em;line-height:1.1;
+  background:linear-gradient(90deg,var(--A),var(--C),var(--B));-webkit-background-clip:text;background-clip:text;color:transparent}
+.rule{font-size:1.6vw;margin:.8vw 0 0;line-height:1.5}
+.rule small{display:block;font-size:1.15vw;color:var(--mut)}
+.bigcount{font-size:2.2vw;margin:1.4vw 0 .8vw}
+.bigcount b{font-size:5vw;color:var(--C);margin:0 .4vw}
+.chips{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:.6vw;overflow:hidden}
+.chip{background:var(--card);border:1px solid #3a3570;border-radius:999px;padding:.35vw 1vw;font-size:1.35vw;white-space:nowrap;
+  transition:opacity .8s, transform .8s, filter .8s}
+.chip.pop{animation:pop .5s ease-out}
+.chip.bot{opacity:.7}
+.chips.small .chip{font-size:1vw;padding:.2vw .7vw}
+.chips.tiny .chip{font-size:.8vw;padding:.15vw .5vw}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+/* ---------- answer ---------- */
+#vAnswer,#vReveal,#vSurv,#vEnd{flex-direction:column}
+.roundbar{display:flex;justify-content:space-between;font-size:1.8vw;color:var(--mut)}
+.roundbar b{color:var(--txt)}
+.qtext{text-align:center;margin:1.5vh 0 2.5vh}
+.qtext .zh{font-size:4.6vw;font-weight:900}
+.qtext .sub{font-size:1.7vw;color:var(--mut);margin-top:.4vh}
+.opts{display:flex;gap:2vw;flex:1;min-height:0}
+.opt{flex:1;border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5vw;
+  color:#fff;text-align:center;position:relative;transition:all .6s}
+.opt .zh{font-size:3.6vw;font-weight:900;line-height:1.2}
+.opt .sub{font-size:1.3vw;opacity:.9;margin-top:.5vw}
+.opt.o0{background:var(--A)}.opt.o1{background:var(--B)}.opt.o2{background:var(--C);color:#2a1e00}
+.opt .letter{position:absolute;top:.8vw;left:1.2vw;font-size:1.6vw;font-weight:900;opacity:.6}
+.answerFoot{display:flex;align-items:center;justify-content:center;gap:4vw;margin-top:2.5vh}
+.ring{position:relative;width:15vh;height:15vh}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9}
+.ring .bgc{stroke:#2c2858}.ring .fg{stroke:var(--C);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:6vh;font-weight:900}
+.answered{font-size:2.4vw}
+.answered b{font-size:4.4vw;color:var(--C)}
+.timeup{font-size:3vw;font-weight:900;color:var(--A);display:none;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.4}}
+/* ---------- reveal ---------- */
+.rcols{display:flex;gap:1.5vw;flex:1;min-height:0}
+.rcol{flex:1;display:flex;flex-direction:column;min-width:0;transition:opacity .8s, filter .8s}
+.rcol .opt{flex:0 0 auto;min-height:24vh}
+.rcol .cnt{font-size:6vw;font-weight:900;line-height:1;margin-top:.5vw}
+.rcol .names{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:.4vw;padding:1vw .3vw;overflow:hidden}
+.rcol .names .chip{font-size:1vw;padding:.15vw .6vw}
+.rcol.none .opt{background:#4a4766}
+.rcol.dead{filter:grayscale(1);opacity:.45}
+.rcol.live .opt{box-shadow:0 0 0 6px #fff,0 0 60px 10px var(--ok);transform:scale(1.03)}
+.stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-12deg) scale(3);opacity:0;font-size:3.4vw;font-weight:900;
+  border:.4vw solid var(--ok);color:var(--ok);background:#0d0b1ecc;padding:.2vw 1.2vw;border-radius:12px;transition:all .45s cubic-bezier(.2,1.6,.4,1)}
+.rcol.live .stamp{transform:translate(-50%,-50%) rotate(-12deg) scale(1);opacity:1}
+.chip.gone{opacity:0;transform:translateY(30px) scale(.6);filter:blur(3px)}
+.banner{text-align:center;font-size:2.6vw;font-weight:900;color:var(--C);min-height:4vw;margin-top:.5vh}
+/* ---------- survivors ---------- */
+#vSurv{align-items:center}
+#vSurv h2{font-size:3.4vw;margin-top:1vh}
+#vSurv h2 b{color:var(--ok);font-size:5vw}
+#survChips{justify-content:center;margin-top:2vh;width:100%}
+#survChips .chip{border-color:var(--ok);font-size:1.8vw}
+#survChips.small .chip{font-size:1.2vw}#survChips.tiny .chip{font-size:.9vw}
+.hint{font-size:1.6vw;color:var(--mut);margin-top:1vh}
+.summary{display:flex;gap:2vw;margin-top:1vh;font-size:1.5vw}
+.summary span{padding:.3vw 1vw;border-radius:999px;background:var(--card)}
+/* ---------- end ---------- */
+#vEnd{align-items:center;justify-content:center;text-align:center;z-index:1}
+#fw{position:fixed;inset:0;pointer-events:none;z-index:0}
+.trophy{font-size:9vw;animation:bounce 1.2s infinite}
+@keyframes bounce{50%{transform:translateY(-1.5vw)}}
+#vEnd h2{font-size:3vw;color:var(--C)}
+#winners{display:flex;flex-wrap:wrap;justify-content:center;gap:2vw 4vw;margin-top:3vh}
+#winners div{font-size:7vw;font-weight:900;text-shadow:0 0 30px #ffbe0b99;animation:pop .8s ease-out both}
+#winners.many div{font-size:4vw}
+/* ---------- host bar ---------- */
+#bar{position:fixed;left:0;right:0;bottom:0;height:64px;background:#0a0918ee;border-top:1px solid #2c2858;display:flex;align-items:center;gap:8px;
+  padding:0 12px;z-index:20;opacity:.25;transition:opacity .3s}
+#bar:hover,#bar.pin{opacity:1}
+#bar button{background:#2c2858;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-size:15px;cursor:pointer;font-family:inherit;white-space:nowrap}
+#bar button:hover:not(:disabled){background:#433d85}
+#bar button:disabled{opacity:.3;cursor:default}
+#bar button.go{background:#1f8f5f}#bar button.go:hover:not(:disabled){background:#27b277}
+#bar button.warn{background:#7a2335}
+#bar button.glow{animation:glow 1s infinite}
+@keyframes glow{50%{box-shadow:0 0 18px 4px var(--C)}}
+#bar .sp{flex:1}
+#mode{font-size:13px;color:var(--mut);white-space:nowrap}
+#mode.demo{color:var(--C)}
+#hostInfo{font-size:13px;color:var(--mut);white-space:nowrap}
+/* ---------- modal / toast ---------- */
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:50}
+.modal.on{display:flex}
+.box{background:#1b1838;border:1px solid #3a3570;border-radius:18px;padding:26px;min-width:360px;max-width:520px}
+.box h3{margin-bottom:14px}
+.box label{display:block;margin:10px 0 4px;color:var(--mut);font-size:14px}
+.box input,.box select{width:100%;padding:10px;border-radius:8px;border:1px solid #3a3570;background:#0d0b1e;color:#fff;font-size:16px;font-family:inherit}
+.box .btns{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.box button{background:#2c2858;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:15px;cursor:pointer;font-family:inherit}
+.box button.go{background:#1f8f5f}.box button.warn{background:#a32c46}
+.box .err{color:#ff8fa3;font-size:14px;margin-top:8px;min-height:18px}
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#2c2858;padding:12px 22px;border-radius:12px;font-size:18px;z-index:60;display:none;box-shadow:0 8px 30px #0008}
+#needLogin{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;font-size:2vw;gap:1vw;z-index:5;background:#0d0b1ee0}
+#needLogin.on{display:flex}
+</style>
+</head>
+<body>
+
+<!-- 開場 / 等待加入 -->
+<section class="view" id="vLobby">
+  <div class="qrbox">
+    <div id="qr"></div>
+    <div class="scan">掃描加入 Scan to join</div>
+    <div class="url" id="phoneUrl"></div>
+  </div>
+  <div class="lobbyR">
+    <div class="title">少數決大逃殺</div>
+    <div class="rule">選「<b style="color:var(--C)">最少人</b>」選的選項才能存活！時間內沒作答直接淘汰。
+      <small>Pick the option the FEWEST people pick to survive! · Chọn đáp án ÍT người chọn nhất để sống sót!</small></div>
+    <div class="bigcount">已加入 <b id="joinN">0</b> 人 <span class="mut" style="font-size:1.4vw">players joined</span></div>
+    <div class="chips" id="lobbyChips"></div>
+  </div>
+</section>
+
+<!-- 作答中 -->
+<section class="view" id="vAnswer">
+  <div class="roundbar"><span>第 <b id="aRound">1</b> 輪 · Round <span id="aRound2">1</span></span><span>存活 <b id="aAlive">0</b> 人</span></div>
+  <div class="qtext" id="aQ"></div>
+  <div class="opts" id="aOpts"></div>
+  <div class="answerFoot">
+    <div class="ring"><svg viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="44"/><circle class="fg" id="ringFg" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="0"/></svg><div class="num" id="aSec">10</div></div>
+    <div class="answered">已作答 <b id="aCnt">0</b> / <span id="aTot">0</span></div>
+    <div class="timeup" id="aTimeup">⏰ 時間到！</div>
+  </div>
+</section>
+
+<!-- 公布結果動畫 -->
+<section class="view" id="vReveal">
+  <div class="roundbar"><span>第 <b id="rRound">1</b> 輪結果</span><span id="rQ"></span></div>
+  <div class="rcols" id="rCols"></div>
+  <div class="banner" id="rBanner"></div>
+</section>
+
+<!-- 存活者名單 -->
+<section class="view" id="vSurv">
+  <h2 id="sTitle"></h2>
+  <div class="banner" id="sBanner"></div>
+  <div class="summary" id="sSummary"></div>
+  <div class="chips" id="survChips"></div>
+  <div class="hint" id="sHint"></div>
+</section>
+
+<!-- 勝利 -->
+<section class="view" id="vEnd">
+  <div class="trophy">🏆</div>
+  <h2>贏家 WINNERS · NGƯỜI THẮNG</h2>
+  <div id="winners"></div>
+</section>
+<canvas id="fw"></canvas>
+
+<div id="needLogin"><div>🔑 請先在下方按「主持人登入」</div><div class="mut" style="font-size:1.2vw">登入後才看得到玩家名單、才能操作遊戲</div></div>
+
+<!-- 主持人按鍵列 -->
+<div id="bar">
+  <button id="bLogin">🔑 主持人登入</button>
+  <button id="bStart" class="go" title="S">▶ 開始遊戲</button>
+  <button id="bNext" class="go" title="N">⏭ 下一題</button>
+  <button id="bReveal" class="go" title="P">📣 公布結果</button>
+  <button id="bSkip" title="K">↷ 跳過此題</button>
+  <button id="bRestart" class="warn" title="R">↺ 重新開始</button>
+  <span class="sp"></span>
+  <button id="bBots">🤖 模擬50假玩家</button>
+  <button id="bDelBots">移除假玩家</button>
+  <button id="bClear" class="warn">清空玩家</button>
+  <button id="bSet">⚙ 設定</button>
+  <button id="bFull" title="F">⛶</button>
+  <span id="hostInfo"></span>
+  <span id="mode"></span>
+</div>
+
+<div class="modal" id="mLogin"><div class="box">
+  <h3>🔑 主持人登入</h3>
+  <label>Email</label><input id="lEmail" type="email">
+  <label>密碼</label><input id="lPass" type="password">
+  <div class="err" id="lErr"></div>
+  <div class="btns"><button data-close>取消</button><button class="go" id="lGo">登入</button></div>
+</div></div>
+
+<div class="modal" id="mSet"><div class="box">
+  <h3>⚙ 遊戲設定</h3>
+  <label>每題作答秒數</label><input id="sDur" type="number" min="3" max="120">
+  <label>存活人數 ≤ 幾人時結束（贏家人數上限）</label><input id="sWin" type="number" min="1" max="100">
+  <label>出題順序</label><select id="sOrder"><option value="random">隨機出題</option><option value="sequence">照題庫順序</option></select>
+  <div class="mut" style="font-size:13px;margin-top:10px">修改後從「下一題」開始生效。同一場遊戲題目不會重複。</div>
+  <div class="btns"><button data-close>取消</button><button class="go" id="sSave">儲存</button></div>
+</div></div>
+
+<div class="modal" id="mConfirm"><div class="box">
+  <h3 id="cTitle">確定？</h3><div id="cMsg" class="mut"></div>
+  <div class="btns"><button data-close>取消</button><button class="warn" id="cOk">確定</button></div>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+const { CFG, ROOT, DEMO, Demo, SV, rid, esc, judge } = MinorityCommon;
+const QS = window.QUESTIONS || [];
+const GRACE = CFG.graceMs ?? 800, LEAD = CFG.leadMs ?? 2000;
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+let B = null, isHost = false, hostEmail = "";
+let pub = null, players = {}, answers = {}, settings = null, game = null;
+let hostUnsubs = [], ansUnsub = null, ansKey = null;
+let revealing = false, botTimers = [], built = "";
+
+// ================= 後端（DEMO 或 Firebase） =================
+function loadScript(src) {
+  return new Promise((ok, bad) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });
+}
+async function initBackend() {
+  if (DEMO) {
+    B = {
+      on(path, cb) {
+        let last;
+        const fire = () => { const v = Demo.get(ROOT + "/" + path); const s = JSON.stringify(v); if (s !== last) { last = s; cb(v); } };
+        fire(); return Demo.subscribe(fire);
+      },
+      get: async p => Demo.get(ROOT + "/" + p),
+      update: async o => { const x = {}; for (const k in o) x[ROOT + "/" + k] = o[k]; Demo.update(x); },
+      now: () => Date.now()
+    };
+    isHost = true; hostEmail = "DEMO";
+    $("mode").textContent = "DEMO 單機試玩模式"; $("mode").className = "demo";
+    $("bLogin").style.display = "none";
+    onHostChanged();
+    return;
+  }
+  const V = "10.12.2";
+  await loadScript(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+  await loadScript(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+  await loadScript(`https://www.gstatic.com/firebasejs/${V}/firebase-database-compat.js`);
+  firebase.initializeApp(CFG.firebase);
+  const db = firebase.database();
+  let offset = 0;
+  db.ref(".info/serverTimeOffset").on("value", s => offset = s.val() || 0);
+  db.ref(".info/connected").on("value", s => {
+    $("mode").textContent = s.val() ? "🟢 已連線 Firebase" : "🔴 連線中斷，重新連線中…"; $("mode").className = "";
+  });
+  B = {
+    on(path, cb) { const r = db.ref(ROOT + "/" + path); const h = r.on("value", s => cb(s.val()), e => console.warn(path, e.message)); return () => r.off("value", h); },
+    get: async p => (await db.ref(ROOT + "/" + p).get()).val(),
+    update: o => db.ref(ROOT).update(o),
+    now: () => Date.now() + offset
+  };
+  firebase.auth().onAuthStateChanged(u => {
+    hostEmail = u ? u.email : "";
+    isHost = !!u && u.email.toLowerCase() === String(CFG.hostEmail).toLowerCase();
+    if (u && !isHost) toast("這個帳號不是 config.js 裡設定的主持人 Email");
+    $("bLogin").textContent = u ? "登出" : "🔑 主持人登入";
+    onHostChanged();
+  });
+}
+
+function onHostChanged() {
+  hostUnsubs.forEach(f => f()); hostUnsubs = [];
+  if (ansUnsub) { ansUnsub(); ansUnsub = null; ansKey = null; }
+  $("hostInfo").textContent = isHost ? "主持人：" + hostEmail : "";
+  $("needLogin").classList.toggle("on", !isHost);
+  $("bar").classList.toggle("pin", !isHost);
+  if (!isHost) { updateButtons(); return; }
+  let firstPub = true;
+  hostUnsubs.push(B.on("pub", v => {
+    pub = v;
+    if (!pub && firstPub) { firstPub = false; B.update({ pub: lobbyPub(1, 0) }); return; }
+    firstPub = false;
+    syncAnswerListener(); render();
+  }));
+  hostUnsubs.push(B.on("players", v => { players = v || {}; scheduleNames(); render(); }));
+  hostUnsubs.push(B.on("game", v => { game = v; }));
+  let firstSet = true;
+  hostUnsubs.push(B.on("settings", v => {
+    if (!v && firstSet) { B.update({ settings: { dur: CFG.answerSec || 10, winners: CFG.winnersMax || 3, order: CFG.questionOrder || "random" } }); }
+    firstSet = false;
+    settings = v || { dur: CFG.answerSec || 10, winners: CFG.winnersMax || 3, order: CFG.questionOrder || "random" };
+  }));
+}
+function syncAnswerListener() {
+  const want = pub && pub.phase === "answer" ? pub.rkey : null;
+  if (want === ansKey) return;
+  if (ansUnsub) ansUnsub();
+  ansUnsub = null; ansKey = want; answers = {};
+  if (want) ansUnsub = B.on("answers/" + want, v => { answers = v || {}; render(); });
+}
+function lobbyPub(rev, joined) {
+  return { phase: "lobby", round: 0, rkey: "", gid: rid(5), rev, joined: joined || 0 };
+}
+
+// ================= 小工具 =================
+const pName = pid => (players[pid] && (players[pid].dname || players[pid].name)) || "?";
+const alivePids = () => Object.keys(players).filter(p => players[p].st === "alive");
+function toast(msg, ms = 2600) { const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", ms); }
+function show(id) { document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === id)); }
+function chipClass(el, n) { el.classList.toggle("small", n > 40 && n <= 90); el.classList.toggle("tiny", n > 90); }
+function confirmBox(title, msg) {
+  return new Promise(res => {
+    $("cTitle").textContent = title; $("cMsg").textContent = msg; $("mConfirm").classList.add("on");
+    $("cOk").onclick = () => { $("mConfirm").classList.remove("on"); res(true); };
+    $("mConfirm").querySelector("[data-close]").onclick = () => { $("mConfirm").classList.remove("on"); res(false); };
+  });
+}
+
+// 名字重複自動加編號（由大螢幕統一處理）
+let nameTimer = null;
+function scheduleNames() { clearTimeout(nameTimer); nameTimer = setTimeout(assignNames, 300); }
+function assignNames() {
+  if (!isHost) return;
+  const list = Object.entries(players).sort((a, b) => (a[1].joinedAt || 0) - (b[1].joinedAt || 0) || a[0].localeCompare(b[0]));
+  const used = new Set(list.filter(([, p]) => p.dname).map(([, p]) => p.dname));
+  const upd = {};
+  for (const [pid, p] of list) {
+    if (p.dname) continue;
+    const base = String(p.name || "?").trim() || "?";
+    let n = base, k = 2;
+    while (used.has(n)) n = base + "#" + (k++);
+    used.add(n); upd["players/" + pid + "/dname"] = n;
+  }
+  if (Object.keys(upd).length) B.update(upd);
+}
+
+// ================= 畫面 =================
+function render() {
+  updateButtons();
+  if (!pub || revealing) return;
+  const key = pub.phase + "|" + (pub.rkey || "");
+  if (pub.phase === "lobby") { if (built !== key) { built = key; show("vLobby"); lobbyShown.clear(); $("lobbyChips").innerHTML = ""; } renderLobby(); }
+  else if (pub.phase === "answer") { if (built !== key) { built = key; buildAnswer(); } updateAnswer(); }
+  else if (pub.phase === "reveal") { if (built !== key) { built = key; renderSurvivors(); } }
+  else if (pub.phase === "end") { if (built !== key) { built = key; renderEnd(); } }
+  if (pub.phase !== "end") stopFireworks();
+}
+
+const lobbyShown = new Map();
+let joinedTimer = null;
+function renderLobby() {
+  const pids = Object.keys(players).sort((a, b) => (players[a].joinedAt || 0) - (players[b].joinedAt || 0));
+  $("joinN").textContent = pids.length;
+  const box = $("lobbyChips"); chipClass(box, pids.length);
+  for (const [pid, el] of lobbyShown) if (!players[pid]) { el.remove(); lobbyShown.delete(pid); }
+  for (const pid of pids) {
+    let el = lobbyShown.get(pid);
+    if (!el) { el = document.createElement("span"); el.className = "chip pop" + (players[pid].bot ? " bot" : ""); box.appendChild(el); lobbyShown.set(pid, el); }
+    if (el.textContent !== pName(pid)) el.textContent = pName(pid);
+  }
+  // 把加入人數寫給手機看（最多每秒一次）
+  if (isHost && pub.joined !== pids.length && !joinedTimer) {
+    joinedTimer = setTimeout(() => { joinedTimer = null; if (pub && pub.phase === "lobby") B.update({ "pub/joined": Object.keys(players).length }); }, 1000);
+  }
+}
+
+function optHTML(q, i, extra = "") {
+  return `<div class="opt o${i}"><span class="letter">${"ABC"[i]}</span><div class="zh">${esc(q.o.zh[i])}</div>
+    <div class="sub">${esc(q.o.en[i])} · ${esc(q.o.vi[i])}</div>${extra}</div>`;
+}
+function buildAnswer() {
+  show("vAnswer");
+  const q = pub.q;
+  $("aRound").textContent = $("aRound2").textContent = pub.round;
+  $("aAlive").textContent = $("aTot").textContent = pub.alive;
+  $("aQ").innerHTML = `<div class="zh">${esc(q.zh)}</div><div class="sub">${esc(q.en)}　·　${esc(q.vi)}</div>`;
+  $("aOpts").innerHTML = [0, 1, 2].map(i => optHTML(q, i)).join("");
+  $("aTimeup").style.display = "none";
+}
+function updateAnswer() {
+  const alive = new Set(alivePids());
+  $("aCnt").textContent = Object.keys(answers).filter(p => alive.has(p)).length;
+}
+// 倒數計時（大螢幕自己跑）
+setInterval(() => {
+  if (!pub || pub.phase !== "answer" || revealing || !B) return;
+  const now = B.now(), total = pub.dur * 1000;
+  let left = pub.deadline - now;
+  const pre = now < pub.startAt;
+  $("aSec").textContent = pre ? "準備" : Math.max(0, Math.ceil(left / 1000));
+  $("aSec").style.fontSize = pre ? "3.4vh" : "";
+  const frac = pre ? 1 : Math.max(0, Math.min(1, left / total));
+  $("ringFg").style.strokeDashoffset = (276.46 * (1 - frac)).toFixed(1);
+  $("ringFg").style.stroke = left < 3500 && !pre ? "var(--A)" : "var(--C)";
+  const over = left <= 0;
+  $("aTimeup").style.display = over ? "block" : "none";
+  updateButtons();
+}, 200);
+
+function renderSurvivors() {
+  show("vSurv");
+  const surv = alivePids();
+  $("sTitle").innerHTML = `第 ${pub.round} 輪結束 · 存活 <b>${surv.length}</b> 人`;
+  $("sBanner").textContent = bannerText(pub.result);
+  const c = pub.counts || [0, 0, 0], so = pub.survOpts || [];
+  $("sSummary").innerHTML = [0, 1, 2].map(i => `<span style="border:2px solid var(--${"ABC"[i]})">${so.includes(i) ? "✅ " : ""}${esc(pub.q.o.zh[i])}：${c[i]} 人</span>`).join("")
+    + (pub.none ? `<span>未作答：${pub.none} 人</span>` : "");
+  const box = $("survChips"); chipClass(box, surv.length);
+  box.innerHTML = surv.map(p => `<span class="chip pop">${esc(pName(p))}</span>`).join("");
+  $("sHint").textContent = pub.over ? "存活人數已達標！按「🏆 公布贏家」(N)" : "主持人按「⏭ 下一題」(N) 繼續";
+}
+function bannerText(type) {
+  return type === "allSame" ? "全部選同一個 → 這輪不算，全員存活！" :
+         type === "noAnswers" ? "沒有人作答 → 這輪不算" :
+         type === "tie" ? "最少人數並列 → 並列的選項都存活！" : "";
+}
+
+// ================= 主持人動作 =================
+function pickQ(used) {
+  const avail = QS.map((_, i) => i).filter(i => !used.includes(i));
+  if (!avail.length) return null;
+  return settings.order === "sequence" ? avail[0] : avail[Math.floor(Math.random() * avail.length)];
+}
+
+async function startGame() {
+  if (!isHost || !pub || pub.phase !== "lobby") return;
+  const pids = Object.keys(players);
+  if (pids.length <= settings.winners) { toast(`至少需要 ${settings.winners + 1} 位玩家才能開始（目前 ${pids.length} 位）`); return; }
+  const upd = { answers: null, game: { used: [] } };
+  for (const p of pids) { upd["players/" + p + "/st"] = "alive"; upd["players/" + p + "/outRound"] = null; }
+  await B.update(upd);
+  game = { used: [] };
+  await startRound(pids);
+}
+
+async function startRound(aliveList) {
+  clearBots();
+  let used = (game && game.used) ? game.used.slice() : [];
+  let qid = pickQ(used);
+  if (qid === null) { used = []; qid = pickQ(used); toast("題庫已經出完，開始重複使用題目"); }
+  if (qid === null) { toast("題庫是空的！請檢查 questions.js"); return; }
+  const alive = aliveList || alivePids();
+  const round = (pub.round || 0) + 1, rkey = pub.gid + "_r" + round;
+  const startAt = B.now() + LEAD, deadline = startAt + settings.dur * 1000;
+  const q = QS[qid];
+  used.push(qid);
+  await B.update({
+    pub: { phase: "answer", round, rkey, gid: pub.gid, qid, q: { zh: q.zh, en: q.en, vi: q.vi, o: q.o },
+           startAt, deadline, dur: settings.dur, alive: alive.length, joined: Object.keys(players).length, rev: (pub.rev || 0) + 1 },
+    "game/used": used
+  });
+  game = Object.assign({}, game, { used });
+  scheduleBots(rkey, alive, startAt, deadline);
+}
+
+function clearBots() { botTimers.forEach(clearTimeout); botTimers = []; }
+function scheduleBots(rkey, alive, startAt, deadline) {
+  const bots = alive.filter(p => players[p] && players[p].bot);
+  if (!bots.length) return;
+  const w = [0, 1, 2].map(() => 0.15 + Math.random() ** 1.3); const sum = w[0] + w[1] + w[2];
+  const now = B.now();
+  for (const pid of bots) {
+    if (Math.random() < 0.04) continue; // 少數假玩家不作答
+    let r = Math.random() * sum, c = 0; while (r > w[c] && c < 2) { r -= w[c]; c++; }
+    const delay = (startAt - now) + 300 + Math.random() * (deadline - startAt - 900);
+    botTimers.push(setTimeout(() => {
+      if (!pub || pub.rkey !== rkey || pub.phase !== "answer") return;
+      B.update({ ["answers/" + rkey + "/" + pid]: { c, t: SV } });
+    }, delay));
+  }
+}
+
+async function skipQ() {
+  if (!isHost || !pub || pub.phase !== "answer" || revealing) return;
+  if (!await confirmBox("跳過這一題？", "這一題不算，所有存活者直接進入下一題（重新倒數）。")) return;
+  await startRound();
+  toast("已跳過，換下一題");
+}
+
+async function doReveal() {
+  if (!isHost || !pub || pub.phase !== "answer" || revealing) return;
+  if (B.now() < pub.deadline + GRACE + 200) { toast("還在作答時間內，時間到才能公布"); return; }
+  revealing = true; clearBots(); updateButtons();
+  const P = pub, rkey = P.rkey;
+  try {
+    const ans = (await B.get("answers/" + rkey)) || {};
+    const alive = alivePids();
+    const res = judge(alive, ans, P.deadline, GRACE);
+    const aliveAfter = res.survivors.length, over = aliveAfter <= settings.winners;
+    // ----- 畫面：先蓋牌 -----
+    show("vReveal");
+    $("rRound").textContent = P.round; $("rQ").textContent = P.q.zh; $("rBanner").textContent = "";
+    const cols = [0, 1, 2].map(i => ({ i, pids: alive.filter(p => res.choice[p] === i) }));
+    if (res.none.length) cols.push({ i: "none", pids: res.none });
+    $("rCols").innerHTML = cols.map(c => {
+      const head = c.i === "none"
+        ? `<div class="opt"><div class="zh">未作答</div><div class="sub">No answer · Không trả lời</div><div class="cnt" data-n="${c.pids.length}">?</div><div class="stamp">存活</div></div>`
+        : optHTML(P.q, c.i, `<div class="cnt" data-n="${c.pids.length}">?</div><div class="stamp">存活</div>`);
+      return `<div class="rcol ${c.i === "none" ? "none" : ""}" data-i="${c.i}">${head}<div class="names">${
+        c.pids.map(p => `<span class="chip" data-pid="${esc(p)}" style="opacity:0">${esc(pName(p))}</span>`).join("")}</div></div>`;
+    }).join("");
+    const colEls = [...document.querySelectorAll("#rCols .rcol")];
+    colEls.forEach(el => chipClass(el.querySelector(".names"), el.querySelectorAll(".chip").length * 3));
+    await sleep(900);
+    // ----- 一個一個揭曉票數 -----
+    for (const el of colEls) {
+      const cnt = el.querySelector(".cnt"), n = +cnt.dataset.n, t0 = performance.now(), dur = 800;
+      await new Promise(done => {
+        const step = t => { const k = Math.min(1, (t - t0) / dur); cnt.textContent = Math.round(n * k); k < 1 ? requestAnimationFrame(step) : done(); };
+        requestAnimationFrame(step);
+      });
+      el.querySelectorAll(".chip").forEach((c, j) => setTimeout(() => c.style.opacity = 1, j * 15));
+      await sleep(750);
+    }
+    await sleep(500);
+    // ----- 最少人亮起「存活」，其他淘汰 -----
+    const survSet = new Set(res.survivors);
+    colEls.forEach(el => {
+      const i = el.dataset.i;
+      const live = i !== "none" && (res.type === "noAnswers" || res.survOpts.includes(+i));
+      el.classList.add(live ? "live" : "dead");
+    });
+    $("rBanner").textContent = bannerText(res.type);
+    // 寫回資料庫（手機約 1.5 秒內會看到自己的結果）
+    const upd = {};
+    for (const p of res.eliminated) { upd["players/" + p + "/st"] = "out"; upd["players/" + p + "/outRound"] = P.round; }
+    Object.assign(upd, {
+      "pub/phase": "reveal", "pub/counts": res.counts, "pub/none": res.none.length, "pub/survOpts": res.survOpts,
+      "pub/result": res.type, "pub/aliveAfter": aliveAfter, "pub/over": over, "pub/rev": (P.rev || 0) + 1
+    });
+    await B.update(upd);
+    await sleep(900);
+    document.querySelectorAll("#rCols .chip").forEach((c, j) => {
+      if (!survSet.has(c.dataset.pid)) setTimeout(() => c.classList.add("gone"), (j % 40) * 25);
+    });
+    await sleep(2600);
+  } catch (e) {
+    console.error(e); toast("公布失敗：" + e.message);
+  } finally {
+    revealing = false; built = ""; render();
+  }
+}
+
+async function nextQ() {
+  if (!isHost || !pub || revealing) return;
+  if (pub.phase === "lobby") return startGame();
+  if (pub.phase !== "reveal") return;
+  if (pub.over) {
+    const winners = alivePids().map(pName);
+    await B.update({ "pub/phase": "end", "pub/winners": winners, "pub/rev": (pub.rev || 0) + 1 });
+  } else {
+    await startRound();
+  }
+}
+
+async function restart() {
+  if (!isHost || !pub) return;
+  if (!await confirmBox("重新開始？", "回到開場畫面。已加入的玩家會保留（全部復活），遊戲中才進來觀戰的人也可以加入。")) return;
+  clearBots();
+  const upd = { answers: null, game: null, pub: lobbyPub((pub.rev || 0) + 1, Object.keys(players).length) };
+  for (const p in players) { upd["players/" + p + "/st"] = null; upd["players/" + p + "/outRound"] = null; }
+  await B.update(upd);
+}
+async function clearPlayers() {
+  if (!isHost || !pub) return;
+  if (!await confirmBox("清空所有玩家？", "所有人（包含假玩家）都要重新掃 QR Code 加入。適合彩排完、正式開始前使用。")) return;
+  clearBots();
+  await B.update({ players: null, ping: null, answers: null, game: null, pub: lobbyPub((pub.rev || 0) + 1, 0) });
+}
+async function addBots() {
+  if (!isHost || !pub || pub.phase !== "lobby") { toast("只能在開場（等待加入）時加入假玩家"); return; }
+  const have = Object.values(players).filter(p => p.bot).length;
+  const upd = {};
+  for (let i = 1; i <= 50; i++) {
+    upd["players/bot_" + rid(10)] = { name: "假玩家" + String(have + i).padStart(2, "0"), joinedAt: SV, bot: true, lang: "zh" };
+  }
+  await B.update(upd);
+  toast("已加入 50 個假玩家，他們每一輪會隨機作答（約 4% 不作答）");
+}
+async function delBots() {
+  if (!isHost || !pub || pub.phase !== "lobby") { toast("請先「重新開始」回到開場，再移除假玩家"); return; }
+  const upd = {}; for (const p in players) if (players[p].bot) upd["players/" + p] = null;
+  if (Object.keys(upd).length) await B.update(upd);
+}
+
+function updateButtons() {
+  const ph = pub && pub.phase, h = isHost && !revealing && !!pub;
+  const timeOk = ph === "answer" && B && B.now() >= pub.deadline + GRACE + 200;
+  $("bStart").disabled = !(h && ph === "lobby");
+  $("bNext").disabled = !(h && ph === "reveal");
+  $("bNext").textContent = ph === "reveal" && pub.over ? "🏆 公布贏家" : "⏭ 下一題";
+  $("bNext").classList.toggle("glow", !!(h && ph === "reveal"));
+  $("bReveal").disabled = !(h && timeOk);
+  $("bReveal").classList.toggle("glow", !!(h && timeOk));
+  $("bSkip").disabled = !(h && ph === "answer");
+  $("bRestart").disabled = !(h && ph && ph !== "lobby");
+  $("bBots").disabled = $("bDelBots").disabled = $("bClear").disabled = !(h && ph === "lobby");
+  $("bSet").disabled = !isHost;
+}
+
+// ================= 勝利畫面＋煙火 =================
+let fwRun = false;
+function renderEnd() {
+  show("vEnd");
+  const w = pub.winners || [];
+  $("winners").className = w.length > 4 ? "many" : "";
+  $("winners").innerHTML = w.length ? w.map((n, i) => `<div style="animation-delay:${i * .25}s">${esc(n)}</div>`).join("") : "<div>（沒有贏家）</div>";
+  startFireworks();
+}
+function startFireworks() {
+  if (fwRun) return; fwRun = true;
+  const cv = $("fw"), ctx = cv.getContext("2d"); let parts = [], tick = 0;
+  const resize = () => { cv.width = innerWidth; cv.height = innerHeight; }; resize(); addEventListener("resize", resize);
+  const cols = ["#ff4d6d", "#2ec4b6", "#ffbe0b", "#fff", "#a78bfa", "#2ee59d"];
+  (function loop() {
+    if (!fwRun) { ctx.clearRect(0, 0, cv.width, cv.height); return; }
+    if (tick++ % 28 === 0) {
+      const x = cv.width * (0.1 + Math.random() * 0.8), y = cv.height * (0.1 + Math.random() * 0.45), c = cols[Math.floor(Math.random() * cols.length)];
+      for (let i = 0; i < 90; i++) { const a = Math.random() * 6.283, s = 1 + Math.random() * 5; parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 70 + Math.random() * 40, c }); }
+    }
+    ctx.globalCompositeOperation = "destination-out"; ctx.fillStyle = "rgba(0,0,0,.18)"; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.globalCompositeOperation = "lighter";
+    parts = parts.filter(p => p.life-- > 0);
+    for (const p of parts) { p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.vx *= 0.985; ctx.fillStyle = p.c; ctx.globalAlpha = Math.min(1, p.life / 40); ctx.fillRect(p.x, p.y, 3, 3); }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  })();
+}
+function stopFireworks() { fwRun = false; }
+
+// ================= QR Code、按鈕、快捷鍵 =================
+function phoneUrl() {
+  if (CFG.phoneUrl) return CFG.phoneUrl;
+  return location.href.split("#")[0].split("?")[0].replace(/screen\.html$/i, "");
+}
+function drawQR() {
+  const url = phoneUrl(); $("phoneUrl").textContent = url;
+  try {
+    const qr = qrcode(0, "M"); qr.addData(url); qr.make();
+    $("qr").innerHTML = qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
+  } catch (e) { $("qr").innerHTML = `<div id="qrFallback">（QR Code 載入失敗，請直接輸入下方網址）</div>`; }
+}
+
+$("bLogin").onclick = () => {
+  if (!DEMO && firebase.auth().currentUser) { firebase.auth().signOut(); return; }
+  $("lEmail").value = CFG.hostEmail || ""; $("lErr").textContent = ""; $("mLogin").classList.add("on"); $("lPass").focus();
+};
+$("lGo").onclick = async () => {
+  $("lErr").textContent = "登入中…";
+  try { await firebase.auth().signInWithEmailAndPassword($("lEmail").value.trim(), $("lPass").value); $("mLogin").classList.remove("on"); }
+  catch (e) { $("lErr").textContent = (e.code || "") + " " + (e.message || ""); }
+};
+$("lPass").onkeydown = e => { if (e.key === "Enter") $("lGo").click(); };
+$("bSet").onclick = () => {
+  $("sDur").value = settings.dur; $("sWin").value = settings.winners; $("sOrder").value = settings.order; $("mSet").classList.add("on");
+};
+$("sSave").onclick = async () => {
+  const dur = Math.max(3, Math.min(120, parseInt($("sDur").value) || 10));
+  const winners = Math.max(1, Math.min(100, parseInt($("sWin").value) || 3));
+  await B.update({ settings: { dur, winners, order: $("sOrder").value } });
+  $("mSet").classList.remove("on"); toast(`已儲存：${dur} 秒、剩 ${winners} 人以下結束`);
+};
+document.querySelectorAll(".modal [data-close]").forEach(b => b.addEventListener("click", () => b.closest(".modal").classList.remove("on")));
+$("bStart").onclick = startGame; $("bNext").onclick = nextQ; $("bReveal").onclick = doReveal;
+$("bSkip").onclick = skipQ; $("bRestart").onclick = restart;
+$("bBots").onclick = addBots; $("bDelBots").onclick = delBots; $("bClear").onclick = clearPlayers;
+$("bFull").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || document.querySelector(".modal.on")) return;
+  const k = e.key.toLowerCase();
+  if (k === "s") startGame(); else if (k === "n") nextQ(); else if (k === "p") doReveal();
+  else if (k === "k") skipQ(); else if (k === "r") restart(); else if (k === "f") $("bFull").click();
+  else if (k === "h") $("bar").classList.toggle("pin");
+});
+
+drawQR();
+updateButtons();
+initBackend().catch(e => { console.error(e); toast("Firebase 載入失敗：" + e.message, 8000); });
+</script>
+</body>
+</html>
