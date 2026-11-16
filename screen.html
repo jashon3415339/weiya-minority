@@ -9,176 +9,221 @@
 <script src="common.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <style>
-:root{--A:#ff4d6d;--B:#2ec4b6;--C:#ffbe0b;--bg:#0d0b1e;--card:#1b1838;--txt:#f4f2ff;--mut:#9a95c4;--ok:#2ee59d}
+/* 視覺設計：依 ChatGPT「少數決大逃殺 UI 設計稿」（深藍＋尾牙金，A 天藍／B 珊瑚紅／C 紫羅蘭） */
+:root{--navy:#101A36;--navy-2:#17254B;--navy-3:#223665;--ink:#F7F9FF;--muted:#AEB9D4;--gold:#FFC84B;--gold-soft:#FFE29A;
+  --A:#38BDF8;--B:#F65F6D;--C:#A78BFA;--green:#55D68A;--gray:#8F9AAF;--danger:#FF7A59;--line:rgba(255,255,255,.13);--card:rgba(28,43,83,.92)}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:radial-gradient(ellipse at top,#241d52 0%,var(--bg) 60%);color:var(--txt);
-  font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;overflow:hidden}
-.view{position:absolute;inset:0 0 64px 0;display:none;padding:2.2vh 3vw}
+html,body{margin:0;height:100%;overflow:hidden;color:var(--ink);font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,Arial,sans-serif;
+  background:radial-gradient(circle at 82% 8%,rgba(78,124,255,.28),transparent 34%),radial-gradient(circle at 8% 96%,rgba(255,200,75,.10),transparent 40%),linear-gradient(135deg,#0D1735,#16264F 60%,#101A36)}
+#frame{position:fixed;inset:14px 14px 78px 14px;border:2px solid rgba(255,200,75,.45);border-radius:28px;pointer-events:none;z-index:1}
+#frame::after{content:"";position:absolute;inset:10px;border:1px solid rgba(255,255,255,.08);border-radius:20px}
+.view{position:absolute;inset:14px 14px 78px 14px;display:none;padding:3.2vh 3vw}
 .view.on{display:flex}
-h1,h2,h3{margin:0}
-.mut{color:var(--mut)}
-/* ---------- lobby ---------- */
-#vLobby{gap:3vw;align-items:stretch}
-.qrbox{flex:0 0 34vw;background:#fff;border-radius:24px;padding:2vw;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#222}
-#qr{width:28vw;height:28vw;display:flex;align-items:center;justify-content:center}
-#qr svg{width:100%;height:100%}
-#qrFallback{font-size:1.4vw;word-break:break-all;text-align:center}
-.qrbox .url{margin-top:1vw;font-size:1.15vw;word-break:break-all;text-align:center;color:#555}
-.qrbox .scan{font-size:2vw;font-weight:900;margin-top:.6vw}
-.lobbyR{flex:1;display:flex;flex-direction:column;min-width:0}
-.title{font-size:5.4vw;font-weight:900;letter-spacing:.05em;line-height:1.1;
-  background:linear-gradient(90deg,var(--A),var(--C),var(--B));-webkit-background-clip:text;background-clip:text;color:transparent}
-.rule{font-size:1.6vw;margin:.8vw 0 0;line-height:1.5}
-.rule small{display:block;font-size:1.15vw;color:var(--mut)}
-.bigcount{font-size:2.2vw;margin:1.4vw 0 .8vw}
-.bigcount b{font-size:5vw;color:var(--C);margin:0 .4vw}
-.chips{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:.6vw;overflow:hidden}
-.chip{background:var(--card);border:1px solid #3a3570;border-radius:999px;padding:.35vw 1vw;font-size:1.35vw;white-space:nowrap;
-  transition:opacity .8s, transform .8s, filter .8s}
+h1,h2,h3,p{margin:0}
+.mut{color:var(--muted)}
+.brand{color:var(--gold);font-weight:900;letter-spacing:.06em;font-size:1.25vw}
+.pill{display:inline-flex;align-items:center;gap:.4vw;padding:.45vw 1.1vw;border-radius:999px;font-weight:900;font-size:1.15vw}
+.pill.gold{color:var(--gold);border:1px solid rgba(255,200,75,.55);background:rgba(255,200,75,.08)}
+.pill.green{color:var(--green);border:1px solid rgba(85,214,138,.55);background:rgba(85,214,138,.08)}
+.topline{display:flex;justify-content:space-between;align-items:center;width:100%}
+.chips{display:flex;flex-wrap:wrap;align-content:flex-start;gap:.6vw;overflow:hidden}
+.chip{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:999px;padding:.35vw 1vw;font-size:1.2vw;font-weight:700;white-space:nowrap;
+  transition:opacity .8s,transform .8s,filter .8s}
 .chip.pop{animation:pop .5s ease-out}
-.chip.bot{opacity:.7}
-.chips.small .chip{font-size:1vw;padding:.2vw .7vw}
-.chips.tiny .chip{font-size:.8vw;padding:.15vw .5vw}
-@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-/* ---------- answer ---------- */
+.chip.bot{opacity:.65}
+.chips.small .chip{font-size:.95vw;padding:.2vw .7vw}.chips.tiny .chip{font-size:.75vw;padding:.15vw .5vw}
+@keyframes pop{0%{transform:translateY(14px) scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:none;opacity:1}}
+/* ---------- 開場 ---------- */
+#vLobby{flex-direction:column}
+.lobbyMain{flex:1;display:grid;grid-template-columns:1.1fr .9fr;gap:3vw;align-items:center;min-height:0}
+.bigtitle{font-size:7.4vw;font-weight:900;line-height:1.08;letter-spacing:.06em}
+.bigtitle span{display:block;color:var(--gold)}
+.tagline{display:inline-block;margin-top:2vh;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;padding:.7vw 1.3vw;font-size:1.45vw;font-weight:900}
+.tagline small{display:block;font-size:1vw;color:var(--muted);font-weight:700;margin-top:.3vw}
+.qrcard{display:flex;align-items:center;gap:2vw;background:rgba(28,43,83,.75);border:1px solid rgba(255,200,75,.3);border-radius:28px;padding:2vw}
+#qr{flex:0 0 auto;width:19vw;height:19vw;background:#fff;border-radius:18px;padding:.8vw;display:flex;align-items:center;justify-content:center}
+#qr svg{width:100%;height:100%}
+#qrFallback{color:#222;font-size:1.1vw;text-align:center}
+.qrtext b{display:block;color:var(--gold);font-size:2.4vw;margin-bottom:.6vw}
+.qrtext span{display:block;font-size:1.1vw;color:var(--muted);line-height:1.6}
+.qrtext .url{word-break:break-all;color:var(--ink);margin-top:.6vw;font-size:.95vw}
+.lobbyFoot{display:flex;align-items:center;gap:2vw;height:13vh;min-height:0}
+.joincount{flex:0 0 auto;font-size:1.4vw;font-weight:900;color:var(--muted)}
+.joincount b{font-size:4.6vw;color:var(--gold);margin-right:.5vw}
+#lobbyChips{flex:1;max-height:100%}
+/* ---------- 作答 ---------- */
 #vAnswer,#vReveal,#vSurv,#vEnd{flex-direction:column}
-.roundbar{display:flex;justify-content:space-between;font-size:1.8vw;color:var(--mut)}
-.roundbar b{color:var(--txt)}
-.qtext{text-align:center;margin:1.5vh 0 2.5vh}
-.qtext .zh{font-size:4.6vw;font-weight:900}
-.qtext .sub{font-size:1.7vw;color:var(--mut);margin-top:.4vh}
-.opts{display:flex;gap:2vw;flex:1;min-height:0}
-.opt{flex:1;border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5vw;
-  color:#fff;text-align:center;position:relative;transition:all .6s}
-.opt .zh{font-size:3.6vw;font-weight:900;line-height:1.2}
-.opt .sub{font-size:1.3vw;opacity:.9;margin-top:.5vw}
-.opt.o0{background:var(--A)}.opt.o1{background:var(--B)}.opt.o2{background:var(--C);color:#2a1e00}
-.opt .letter{position:absolute;top:.8vw;left:1.2vw;font-size:1.6vw;font-weight:900;opacity:.6}
-.answerFoot{display:flex;align-items:center;justify-content:center;gap:4vw;margin-top:2.5vh}
-.ring{position:relative;width:15vh;height:15vh}
-.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.ring circle{fill:none;stroke-width:9}
-.ring .bgc{stroke:#2c2858}.ring .fg{stroke:var(--C);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
-.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:6vh;font-weight:900}
-.answered{font-size:2.4vw}
-.answered b{font-size:4.4vw;color:var(--C)}
-.timeup{font-size:3vw;font-weight:900;color:var(--A);display:none;animation:blink 1s infinite}
-@keyframes blink{50%{opacity:.4}}
-/* ---------- reveal ---------- */
-.rcols{display:flex;gap:1.5vw;flex:1;min-height:0}
-.rcol{flex:1;display:flex;flex-direction:column;min-width:0;transition:opacity .8s, filter .8s}
-.rcol .opt{flex:0 0 auto;min-height:24vh}
-.rcol .cnt{font-size:6vw;font-weight:900;line-height:1;margin-top:.5vw}
-.rcol .names{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:.4vw;padding:1vw .3vw;overflow:hidden}
-.rcol .names .chip{font-size:1vw;padding:.15vw .6vw}
-.rcol.none .opt{background:#4a4766}
-.rcol.dead{filter:grayscale(1);opacity:.45}
-.rcol.live .opt{box-shadow:0 0 0 6px #fff,0 0 60px 10px var(--ok);transform:scale(1.03)}
-.stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-12deg) scale(3);opacity:0;font-size:3.4vw;font-weight:900;
-  border:.4vw solid var(--ok);color:var(--ok);background:#0d0b1ecc;padding:.2vw 1.2vw;border-radius:12px;transition:all .45s cubic-bezier(.2,1.6,.4,1)}
-.rcol.live .stamp{transform:translate(-50%,-50%) rotate(-12deg) scale(1);opacity:1}
+.topR{display:flex;flex-direction:column;align-items:flex-end;gap:.6vh}
+.topR .r1{display:flex;gap:.6vw}
+.answeredTxt{font-size:1.3vw;color:var(--muted);font-weight:700}
+.answeredTxt b{color:var(--gold);font-size:1.9vw}
+.subhint{text-align:center;color:var(--gold-soft);font-weight:900;font-size:1.5vw;margin-top:1vh}
+.qtext{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:0}
+.qtext .zh{font-size:4.8vw;font-weight:900;line-height:1.22}
+.qtext .sub{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap;font-size:1.4vw;color:var(--gold-soft);margin-top:1.4vh;font-weight:700}
+.optRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 12vw;gap:1.2vw;align-items:stretch}
+.ocard{border-radius:24px;padding:1.4vw 1.4vw;color:#fff;display:flex;align-items:center;gap:1vw;min-height:11vh;position:relative}
+.ocard.o0{background:linear-gradient(135deg,#1FA6E6,#38BDF8)}.ocard.o1{background:linear-gradient(135deg,#E0465A,#F65F6D)}.ocard.o2{background:linear-gradient(135deg,#8B6CF0,#A78BFA)}
+.lt{flex:0 0 auto;width:3.4vw;height:3.4vw;border-radius:50%;border:3px solid rgba(255,255,255,.9);background:rgba(16,26,54,.35);display:grid;place-items:center;font-size:1.7vw;font-weight:900}
+.ocard .tx b{display:block;font-size:2.3vw;font-weight:900;line-height:1.15}
+.ocard .tx small{display:block;font-size:1vw;opacity:.92;margin-top:.3vw;line-height:1.3}
+.timer{border:3px solid var(--gold);border-radius:24px;background:rgba(9,17,38,.7);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.timer b{font-size:4.4vw;color:var(--gold);line-height:1}
+.timer small{font-size:.85vw;letter-spacing:.08em;color:var(--muted);margin-top:.3vw}
+.timer.hurry{border-color:var(--danger)}.timer.hurry b{color:var(--danger);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.1)}}
+.timeup{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-4deg);font-size:5vw;font-weight:900;color:var(--gold);background:rgba(9,17,38,.85);
+  border:4px solid var(--gold);border-radius:24px;padding:.6vw 2.6vw;display:none;z-index:3}
+/* ---------- 公布結果 ---------- */
+.rhead{text-align:center;margin-top:.6vh}
+.rhead h2{font-size:3.4vw;font-weight:900}
+.rhead p{font-size:1.3vw;color:var(--muted);margin-top:.4vh}
+.rcols{flex:1;display:flex;gap:1.6vw;margin-top:2.2vh;min-height:0}
+.rcol{flex:1;display:flex;flex-direction:column;min-width:0;transition:opacity .8s,filter .8s}
+.rcard{position:relative;border-radius:26px;padding:1.6vw 1vw 1.2vw;text-align:center;border:3px solid transparent;transition:all .6s}
+.rcard.o0{background:rgba(56,189,248,.18);border-color:rgba(56,189,248,.55)}
+.rcard.o1{background:rgba(246,95,109,.18);border-color:rgba(246,95,109,.55)}
+.rcard.o2{background:rgba(167,139,250,.18);border-color:rgba(167,139,250,.55)}
+.rcard.none{background:rgba(143,154,175,.14);border-color:rgba(143,154,175,.4)}
+.rcard .lt{margin:0 auto;width:3.6vw;height:3.6vw}
+.rcard.o0 .lt{background:var(--A)}.rcard.o1 .lt{background:var(--B)}.rcard.o2 .lt{background:var(--C)}.rcard.none .lt{background:var(--gray)}
+.rcard .lbl{font-size:2.2vw;font-weight:900;margin-top:.8vh;line-height:1.2}
+.rcard .lbl small{display:block;font-size:.95vw;color:var(--muted);font-weight:700;margin-top:.3vh}
+.rcard .cnt{font-size:6.4vw;font-weight:900;line-height:1;margin-top:1vh}
+.rcard .unit{font-size:1.1vw;color:var(--muted)}
+.banner-live{position:absolute;left:50%;top:-1.6vw;transform:translateX(-50%) scale(0);background:var(--green);color:var(--navy);font-weight:900;font-size:1.6vw;
+  border-radius:999px;padding:.35vw 1.6vw;white-space:nowrap;transition:transform .45s cubic-bezier(.2,1.6,.4,1)}
+.rcol.live .rcard{border-color:var(--green);box-shadow:0 0 0 4px rgba(85,214,138,.35),0 0 60px rgba(85,214,138,.35);transform:translateY(-6px)}
+.rcol.live .banner-live{transform:translateX(-50%) scale(1)}
+.rcol.dead{opacity:.38;filter:grayscale(.8)}
+.rcol .names{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;justify-content:center;gap:.4vw;padding:1.2vh .3vw 0;overflow:hidden}
+.rcol .names .chip{font-size:.95vw;padding:.15vw .6vw}
 .chip.gone{opacity:0;transform:translateY(30px) scale(.6);filter:blur(3px)}
-.banner{text-align:center;font-size:2.6vw;font-weight:900;color:var(--C);min-height:4vw;margin-top:.5vh}
-/* ---------- survivors ---------- */
+#voidOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(9,17,38,.72);z-index:4;text-align:center}
+#voidOverlay.on{display:flex}
+#voidOverlay b{font-size:5vw;color:var(--gold);font-weight:900}
+#voidOverlay span{font-size:1.6vw;color:var(--ink);margin-top:1vh}
+/* ---------- 存活者 ---------- */
 #vSurv{align-items:center}
-#vSurv h2{font-size:3.4vw;margin-top:1vh}
-#vSurv h2 b{color:var(--ok);font-size:5vw}
-#survChips{justify-content:center;margin-top:2vh;width:100%}
-#survChips .chip{border-color:var(--ok);font-size:1.8vw}
-#survChips.small .chip{font-size:1.2vw}#survChips.tiny .chip{font-size:.9vw}
-.hint{font-size:1.6vw;color:var(--mut);margin-top:1vh}
-.summary{display:flex;gap:2vw;margin-top:1vh;font-size:1.5vw}
-.summary span{padding:.3vw 1vw;border-radius:999px;background:var(--card)}
-/* ---------- end ---------- */
-#vEnd{align-items:center;justify-content:center;text-align:center;z-index:1}
+.survTitle{font-size:5.4vw;font-weight:900;color:var(--gold);margin-top:1.5vh;text-align:center}
+.survSub{font-size:1.3vw;color:var(--muted);margin-top:.6vh;text-align:center}
+.summary{display:flex;gap:1vw;margin-top:1.6vh;font-size:1.2vw;flex-wrap:wrap;justify-content:center}
+.summary span{padding:.3vw 1vw;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-weight:700}
+.summary span.win{border-color:var(--green);color:var(--green)}
+#survGrid{flex:1;width:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1vw;align-content:start;margin-top:2.4vh;overflow:hidden}
+#survGrid.m{grid-template-columns:repeat(8,minmax(0,1fr));gap:.6vw}#survGrid.l{grid-template-columns:repeat(10,minmax(0,1fr));gap:.5vw}
+.scard{display:flex;align-items:center;gap:.7vw;padding:.9vw 1vw;border-radius:16px;background:rgba(85,214,138,.08);border:1px solid rgba(85,214,138,.4);font-size:1.4vw;font-weight:900;min-width:0;animation:pop .5s ease-out both}
+#survGrid.m .scard{font-size:1.05vw;padding:.6vw .7vw}#survGrid.l .scard{font-size:.85vw;padding:.45vw .5vw}
+.scard .av{flex:0 0 auto;width:2.2em;height:2.2em;border-radius:50%;background:var(--green);color:var(--navy);display:grid;place-items:center;font-size:.8em}
+.scard span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.survBar{width:100%;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,200,75,.4);background:rgba(255,200,75,.07);border-radius:18px;padding:1vw 1.6vw;margin-top:1.4vh}
+.survBar b{color:var(--gold);font-size:1.7vw}
+.survBar span{color:var(--gold-soft);font-size:1.2vw;font-weight:700}
+.banner{text-align:center;font-size:2vw;font-weight:900;color:var(--gold);margin-top:.8vh;min-height:2.4vw}
+/* ---------- 勝利 ---------- */
+#vEnd{align-items:center;justify-content:center;text-align:center;z-index:2}
 #fw{position:fixed;inset:0;pointer-events:none;z-index:0}
-.trophy{font-size:9vw;animation:bounce 1.2s infinite}
-@keyframes bounce{50%{transform:translateY(-1.5vw)}}
-#vEnd h2{font-size:3vw;color:var(--C)}
-#winners{display:flex;flex-wrap:wrap;justify-content:center;gap:2vw 4vw;margin-top:3vh}
-#winners div{font-size:7vw;font-weight:900;text-shadow:0 0 30px #ffbe0b99;animation:pop .8s ease-out both}
-#winners.many div{font-size:4vw}
-/* ---------- host bar ---------- */
-#bar{position:fixed;left:0;right:0;bottom:0;height:64px;background:#0a0918ee;border-top:1px solid #2c2858;display:flex;align-items:center;gap:8px;
-  padding:0 12px;z-index:20;opacity:.25;transition:opacity .3s}
+.crown{font-size:7vw;animation:bounce 1.4s infinite}
+@keyframes bounce{50%{transform:translateY(-1.2vw)}}
+#vEnd h2{font-size:5.4vw;color:var(--gold);letter-spacing:.12em;font-weight:900}
+#vEnd .sub{font-size:1.4vw;color:var(--ink);margin-top:.6vh}
+#winners{display:flex;flex-wrap:wrap;justify-content:center;gap:1.6vw;margin-top:4vh}
+#winners div{min-width:16vw;padding:1.6vw 2.4vw;border:3px solid var(--gold);border-radius:24px;background:rgba(255,200,75,.08);font-size:4.4vw;font-weight:900;
+  box-shadow:0 0 40px rgba(255,200,75,.25);animation:pop .8s ease-out both}
+#winners.many div{font-size:2.6vw;min-width:0;padding:1vw 1.6vw}
+/* ---------- 主持人按鍵列 ---------- */
+#bar{position:fixed;left:0;right:0;bottom:0;height:64px;background:rgba(7,16,39,.92);border-top:1px solid rgba(255,200,75,.25);display:flex;align-items:center;gap:8px;
+  padding:0 12px;z-index:20;opacity:.3;transition:opacity .3s}
 #bar:hover,#bar.pin{opacity:1}
-#bar button{background:#2c2858;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-size:15px;cursor:pointer;font-family:inherit;white-space:nowrap}
-#bar button:hover:not(:disabled){background:#433d85}
+#bar button{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px 13px;font-size:15px;cursor:pointer;font-family:inherit;white-space:nowrap;font-weight:700}
+#bar button:hover:not(:disabled){background:rgba(255,255,255,.16)}
 #bar button:disabled{opacity:.3;cursor:default}
-#bar button.go{background:#1f8f5f}#bar button.go:hover:not(:disabled){background:#27b277}
-#bar button.warn{background:#7a2335}
+#bar button.go{background:var(--gold);color:#3B2600;border-color:var(--gold)}
+#bar button.go:hover:not(:disabled){background:#FFD66E}
+#bar button.warn{background:rgba(246,95,109,.25);border-color:rgba(246,95,109,.5)}
 #bar button.glow{animation:glow 1s infinite}
-@keyframes glow{50%{box-shadow:0 0 18px 4px var(--C)}}
+@keyframes glow{50%{box-shadow:0 0 18px 4px var(--gold)}}
 #bar .sp{flex:1}
-#mode{font-size:13px;color:var(--mut);white-space:nowrap}
-#mode.demo{color:var(--C)}
-#hostInfo{font-size:13px;color:var(--mut);white-space:nowrap}
-/* ---------- modal / toast ---------- */
+#mode{font-size:13px;color:var(--muted);white-space:nowrap}
+#mode.demo{color:var(--gold)}
+#hostInfo{font-size:13px;color:var(--muted);white-space:nowrap}
+/* ---------- 視窗／提示 ---------- */
 .modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:50}
 .modal.on{display:flex}
-.box{background:#1b1838;border:1px solid #3a3570;border-radius:18px;padding:26px;min-width:360px;max-width:520px}
-.box h3{margin-bottom:14px}
-.box label{display:block;margin:10px 0 4px;color:var(--mut);font-size:14px}
-.box input,.box select{width:100%;padding:10px;border-radius:8px;border:1px solid #3a3570;background:#0d0b1e;color:#fff;font-size:16px;font-family:inherit}
+.box{background:var(--navy-2);border:1px solid rgba(255,200,75,.35);border-radius:20px;padding:26px;min-width:360px;max-width:520px}
+.box h3{margin-bottom:14px;color:var(--gold)}
+.box label{display:block;margin:10px 0 4px;color:var(--muted);font-size:14px}
+.box input,.box select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--navy-3);background:#0B1430;color:#fff;font-size:16px;font-family:inherit}
 .box .btns{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
-.box button{background:#2c2858;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:15px;cursor:pointer;font-family:inherit}
-.box button.go{background:#1f8f5f}.box button.warn{background:#a32c46}
-.box .err{color:#ff8fa3;font-size:14px;margin-top:8px;min-height:18px}
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#2c2858;padding:12px 22px;border-radius:12px;font-size:18px;z-index:60;display:none;box-shadow:0 8px 30px #0008}
-#needLogin{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;font-size:2vw;gap:1vw;z-index:5;background:#0d0b1ee0}
+.box button{background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:10px;padding:10px 18px;font-size:15px;cursor:pointer;font-family:inherit;font-weight:700}
+.box button.go{background:var(--gold);color:#3B2600}.box button.warn{background:#C94A58}
+.box .err{color:#FF9AA4;font-size:14px;margin-top:8px;min-height:18px}
+#toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--navy-2);border:1px solid rgba(255,200,75,.4);padding:12px 22px;border-radius:14px;font-size:18px;z-index:60;display:none;box-shadow:0 8px 30px #0008}
+#needLogin{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;font-size:2vw;gap:1vw;z-index:5;background:rgba(9,17,38,.9)}
 #needLogin.on{display:flex}
 </style>
 </head>
 <body>
+<div id="frame"></div>
 
 <!-- 開場 / 等待加入 -->
 <section class="view" id="vLobby">
-  <div class="qrbox">
-    <div id="qr"></div>
-    <div class="scan">掃描加入 Scan to join</div>
-    <div class="url" id="phoneUrl"></div>
+  <div class="topline"><span class="brand">2026 尾牙 · 少數決大逃殺</span><span class="pill gold">請掃 QR Code 加入 · Scan to join</span></div>
+  <div class="lobbyMain">
+    <div>
+      <div class="bigtitle">少數決<span>大逃殺</span></div>
+      <div class="tagline">🎯 選「人最少」的答案，才能活下來！
+        <small>Pick the option the FEWEST people pick to survive · Chọn đáp án ÍT người chọn nhất để sống sót</small></div>
+    </div>
+    <div class="qrcard">
+      <div id="qr"></div>
+      <div class="qrtext"><b>掃碼加入</b><span>輸入名字後等待主持人開始<br>Scan · Enter name · Join<br>Quét mã · Nhập tên · Tham gia</span><span class="url" id="phoneUrl"></span></div>
+    </div>
   </div>
-  <div class="lobbyR">
-    <div class="title">少數決大逃殺</div>
-    <div class="rule">選「<b style="color:var(--C)">最少人</b>」選的選項才能存活！時間內沒作答直接淘汰。
-      <small>Pick the option the FEWEST people pick to survive! · Chọn đáp án ÍT người chọn nhất để sống sót!</small></div>
-    <div class="bigcount">已加入 <b id="joinN">0</b> 人 <span class="mut" style="font-size:1.4vw">players joined</span></div>
+  <div class="lobbyFoot">
+    <div class="joincount"><b id="joinN">0</b>位玩家已加入</div>
     <div class="chips" id="lobbyChips"></div>
   </div>
 </section>
 
 <!-- 作答中 -->
 <section class="view" id="vAnswer">
-  <div class="roundbar"><span>第 <b id="aRound">1</b> 輪 · Round <span id="aRound2">1</span></span><span>存活 <b id="aAlive">0</b> 人</span></div>
-  <div class="qtext" id="aQ"></div>
-  <div class="opts" id="aOpts"></div>
-  <div class="answerFoot">
-    <div class="ring"><svg viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="44"/><circle class="fg" id="ringFg" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="0"/></svg><div class="num" id="aSec">10</div></div>
-    <div class="answered">已作答 <b id="aCnt">0</b> / <span id="aTot">0</span></div>
-    <div class="timeup" id="aTimeup">⏰ 時間到！</div>
+  <div class="topline">
+    <span class="brand">少數決大逃殺</span>
+    <div class="topR"><div class="r1"><span class="pill gold" id="aRound">第 1 輪</span><span class="pill green" id="aAlive">♥ 存活 0 人</span></div>
+      <div class="answeredTxt">已作答 <b id="aCnt">0</b> / <span id="aTot">0</span> 人</div></div>
   </div>
+  <div class="subhint">請選擇一個答案 · 送出後不可更改</div>
+  <div class="qtext" id="aQ"></div>
+  <div class="optRow" id="aOpts"></div>
+  <div class="timeup" id="aTimeup">⏰ 時間到！</div>
 </section>
 
 <!-- 公布結果動畫 -->
 <section class="view" id="vReveal">
-  <div class="roundbar"><span>第 <b id="rRound">1</b> 輪結果</span><span id="rQ"></span></div>
+  <div class="topline"><span class="brand" id="rRound">第 1 輪 · 結果公布</span><span class="pill green" id="rAlive"></span></div>
+  <div class="rhead"><h2>誰選了最少人？</h2><p id="rQ"></p></div>
   <div class="rcols" id="rCols"></div>
   <div class="banner" id="rBanner"></div>
+  <div id="voidOverlay"><b id="voidTitle">全部選同一個！本輪不算</b><span id="voidSub">Everyone chose the same answer. No one is eliminated.</span></div>
 </section>
 
 <!-- 存活者名單 -->
 <section class="view" id="vSurv">
-  <h2 id="sTitle"></h2>
+  <div class="topline"><span class="brand">少數決大逃殺</span><span class="pill gold" id="sTag">下一輪即將開始</span></div>
+  <div class="survTitle" id="sTitle"></div>
+  <div class="survSub" id="sSub"></div>
   <div class="banner" id="sBanner"></div>
   <div class="summary" id="sSummary"></div>
-  <div class="chips" id="survChips"></div>
-  <div class="hint" id="sHint"></div>
+  <div id="survGrid"></div>
+  <div class="survBar"><b id="sNext"></b><span id="sHint"></span></div>
 </section>
 
 <!-- 勝利 -->
 <section class="view" id="vEnd">
-  <div class="trophy">🏆</div>
-  <h2>贏家 WINNERS · NGƯỜI THẮNG</h2>
+  <div class="crown">👑</div>
+  <h2>最終贏家</h2>
+  <div class="sub">恭喜活到最後的少數派！ · Winners · Người thắng</div>
   <div id="winners"></div>
 </section>
 <canvas id="fw"></canvas>
@@ -383,17 +428,19 @@ function renderLobby() {
   }
 }
 
-function optHTML(q, i, extra = "") {
-  return `<div class="opt o${i}"><span class="letter">${"ABC"[i]}</span><div class="zh">${esc(q.o.zh[i])}</div>
-    <div class="sub">${esc(q.o.en[i])} · ${esc(q.o.vi[i])}</div>${extra}</div>`;
+function optHTML(q, i) {
+  return `<div class="ocard o${i}"><span class="lt">${"ABC"[i]}</span><div class="tx"><b>${esc(q.o.zh[i])}</b>
+    <small>${esc(q.o.en[i])} · ${esc(q.o.vi[i])}</small></div></div>`;
 }
 function buildAnswer() {
   show("vAnswer");
   const q = pub.q;
-  $("aRound").textContent = $("aRound2").textContent = pub.round;
-  $("aAlive").textContent = $("aTot").textContent = pub.alive;
-  $("aQ").innerHTML = `<div class="zh">${esc(q.zh)}</div><div class="sub">${esc(q.en)}　·　${esc(q.vi)}</div>`;
-  $("aOpts").innerHTML = [0, 1, 2].map(i => optHTML(q, i)).join("");
+  $("aRound").textContent = `第 ${pub.round} 輪`;
+  $("aAlive").textContent = `♥ 存活 ${pub.alive} 人`;
+  $("aTot").textContent = pub.alive;
+  $("aQ").innerHTML = `<div class="zh">${esc(q.zh)}</div><div class="sub"><span>${esc(q.en)}</span><span>${esc(q.vi)}</span></div>`;
+  $("aOpts").innerHTML = [0, 1, 2].map(i => optHTML(q, i)).join("") +
+    `<div class="timer" id="aTimer"><b id="aSec">10</b><small>SECONDS LEFT</small></div>`;
   $("aTimeup").style.display = "none";
 }
 function updateAnswer() {
@@ -402,31 +449,33 @@ function updateAnswer() {
 }
 // 倒數計時（大螢幕自己跑）
 setInterval(() => {
-  if (!pub || pub.phase !== "answer" || revealing || !B) return;
-  const now = B.now(), total = pub.dur * 1000;
-  let left = pub.deadline - now;
+  if (!pub || pub.phase !== "answer" || revealing || !B || !$("aSec")) return;
+  const now = B.now();
+  const left = pub.deadline - now;
   const pre = now < pub.startAt;
-  $("aSec").textContent = pre ? "準備" : Math.max(0, Math.ceil(left / 1000));
-  $("aSec").style.fontSize = pre ? "3.4vh" : "";
-  const frac = pre ? 1 : Math.max(0, Math.min(1, left / total));
-  $("ringFg").style.strokeDashoffset = (276.46 * (1 - frac)).toFixed(1);
-  $("ringFg").style.stroke = left < 3500 && !pre ? "var(--A)" : "var(--C)";
-  const over = left <= 0;
-  $("aTimeup").style.display = over ? "block" : "none";
+  $("aSec").textContent = pre ? "準備" : String(Math.max(0, Math.ceil(left / 1000))).padStart(2, "0");
+  $("aSec").style.fontSize = pre ? "2.4vw" : "";
+  $("aTimer").classList.toggle("hurry", !pre && left < 3500 && left > 0);
+  $("aTimeup").style.display = left <= 0 ? "block" : "none";
   updateButtons();
 }, 200);
 
+function initial(s) { return Array.from(String(s || "?"))[0].toUpperCase(); }
 function renderSurvivors() {
   show("vSurv");
   const surv = alivePids();
-  $("sTitle").innerHTML = `第 ${pub.round} 輪結束 · 存活 <b>${surv.length}</b> 人`;
+  $("sTitle").textContent = `${surv.length} 人存活！`;
+  $("sSub").textContent = `第 ${pub.round} 輪存活者 · Round ${pub.round} survivors · Người sống sót vòng ${pub.round}`;
   $("sBanner").textContent = bannerText(pub.result);
   const c = pub.counts || [0, 0, 0], so = pub.survOpts || [];
-  $("sSummary").innerHTML = [0, 1, 2].map(i => `<span style="border:2px solid var(--${"ABC"[i]})">${so.includes(i) ? "✅ " : ""}${esc(pub.q.o.zh[i])}：${c[i]} 人</span>`).join("")
+  $("sSummary").innerHTML = [0, 1, 2].map(i => `<span class="${so.includes(i) ? "win" : ""}">${so.includes(i) ? "✓ " : ""}${"ABC"[i]} ${esc(pub.q.o.zh[i])}：${c[i]} 人</span>`).join("")
     + (pub.none ? `<span>未作答：${pub.none} 人</span>` : "");
-  const box = $("survChips"); chipClass(box, surv.length);
-  box.innerHTML = surv.map(p => `<span class="chip pop">${esc(pName(p))}</span>`).join("");
-  $("sHint").textContent = pub.over ? "存活人數已達標！按「🏆 公布贏家」(N)" : "主持人按「⏭ 下一題」(N) 繼續";
+  const g = $("survGrid");
+  g.className = surv.length > 60 ? "l" : surv.length > 24 ? "m" : "";
+  g.innerHTML = surv.map((p, i) => `<div class="scard" style="animation-delay:${Math.min(i, 40) * 30}ms"><span class="av">${esc(initial(pName(p)))}</span><span>${esc(pName(p))}</span></div>`).join("");
+  $("sTag").textContent = pub.over ? "存活人數已達標" : "下一輪即將開始";
+  $("sNext").textContent = pub.over ? "🏆 準備公布最終贏家" : `準備進入第 ${pub.round + 1} 輪`;
+  $("sHint").textContent = pub.over ? "主持人按「🏆 公布贏家」(N)" : "存活者請拿好手機，主持人按「⏭ 下一題」(N)";
 }
 function bannerText(type) {
   return type === "allSame" ? "全部選同一個 → 這輪不算，全員存活！" :
@@ -508,14 +557,17 @@ async function doReveal() {
     const aliveAfter = res.survivors.length, over = aliveAfter <= settings.winners;
     // ----- 畫面：先蓋牌 -----
     show("vReveal");
-    $("rRound").textContent = P.round; $("rQ").textContent = P.q.zh; $("rBanner").textContent = "";
+    $("rRound").textContent = `第 ${P.round} 輪 · 結果公布`; $("rQ").textContent = `${P.q.zh} · 最少人數的選項存活 · Fewest votes survive`;
+    $("rAlive").textContent = `♥ 存活選項：?`; $("rBanner").textContent = ""; $("voidOverlay").classList.remove("on");
     const cols = [0, 1, 2].map(i => ({ i, pids: alive.filter(p => res.choice[p] === i) }));
     if (res.none.length) cols.push({ i: "none", pids: res.none });
     $("rCols").innerHTML = cols.map(c => {
-      const head = c.i === "none"
-        ? `<div class="opt"><div class="zh">未作答</div><div class="sub">No answer · Không trả lời</div><div class="cnt" data-n="${c.pids.length}">?</div><div class="stamp">存活</div></div>`
-        : optHTML(P.q, c.i, `<div class="cnt" data-n="${c.pids.length}">?</div><div class="stamp">存活</div>`);
-      return `<div class="rcol ${c.i === "none" ? "none" : ""}" data-i="${c.i}">${head}<div class="names">${
+      const isNone = c.i === "none";
+      const head = `<div class="rcard ${isNone ? "none" : "o" + c.i}"><div class="banner-live">✓ 存活 SURVIVE</div>
+        <span class="lt">${isNone ? "–" : "ABC"[c.i]}</span>
+        <div class="lbl">${isNone ? "未作答" : esc(P.q.o.zh[c.i])}<small>${isNone ? "No answer · Không trả lời" : esc(P.q.o.en[c.i]) + " · " + esc(P.q.o.vi[c.i])}</small></div>
+        <div class="cnt" data-n="${c.pids.length}">?</div><div class="unit">人選擇 · votes</div></div>`;
+      return `<div class="rcol" data-i="${c.i}">${head}<div class="names">${
         c.pids.map(p => `<span class="chip" data-pid="${esc(p)}" style="opacity:0">${esc(pName(p))}</span>`).join("")}</div></div>`;
     }).join("");
     const colEls = [...document.querySelectorAll("#rCols .rcol")];
@@ -540,6 +592,12 @@ async function doReveal() {
       el.classList.add(live ? "live" : "dead");
     });
     $("rBanner").textContent = bannerText(res.type);
+    $("rAlive").textContent = `♥ 存活 ${aliveAfter} 人`;
+    if (res.type === "allSame" || res.type === "noAnswers") {
+      $("voidTitle").textContent = res.type === "allSame" ? "全部選同一個！本輪不算" : "沒有人作答！本輪不算";
+      $("voidSub").textContent = res.type === "allSame" ? "Everyone chose the same answer · Tất cả chọn giống nhau — vòng này không tính" : "No one answered · Không ai trả lời";
+      $("voidOverlay").classList.add("on");
+    }
     // 寫回資料庫（手機約 1.5 秒內會看到自己的結果）
     const upd = {};
     for (const p of res.eliminated) { upd["players/" + p + "/st"] = "out"; upd["players/" + p + "/outRound"] = P.round; }

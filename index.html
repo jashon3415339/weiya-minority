@@ -3,75 +3,125 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#0d0b1e">
+<meta name="theme-color" content="#101A36">
 <title>少數決大逃殺</title>
 <script src="config.js"></script>
 <script src="common.js"></script>
 <style>
-:root{--A:#ff4d6d;--B:#2ec4b6;--C:#ffbe0b;--bg:#0d0b1e;--card:#1b1838;--txt:#f4f2ff;--mut:#9a95c4;--ok:#2ee59d}
+/* 視覺設計：依 ChatGPT「少數決大逃殺 UI 設計稿」（深藍＋尾牙金，A 天藍／B 珊瑚紅／C 紫羅蘭） */
+:root{
+  --navy:#101A36;--navy-2:#17254B;--navy-3:#223665;--ink:#F7F9FF;--muted:#AEB9D4;
+  --gold:#FFC84B;--gold-soft:#FFE29A;--A:#38BDF8;--B:#F65F6D;--C:#A78BFA;
+  --green:#55D68A;--gray:#8F9AAF;--danger:#FF7A59;--line:rgba(255,255,255,.13);--card:rgba(28,43,83,.92);
+  --shadow:0 18px 50px rgba(0,0,0,.34);
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at top,#241d52 0%,var(--bg) 70%) fixed;color:var(--txt);
-  font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-size:14px;color:var(--mut)}
-header .t{font-weight:900;color:var(--txt);font-size:16px}
-#langBtn{background:none;border:1px solid #3a3570;color:var(--mut);border-radius:999px;padding:4px 10px;font-size:13px}
-#dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-left:8px;vertical-align:middle}
-#dot.bad{background:var(--A);animation:bl 1s infinite}@keyframes bl{50%{opacity:.2}}
-main{padding:6px 18px 30px;max-width:520px;margin:0 auto;text-align:center}
-h1{font-size:30px;margin:18px 0 6px;font-weight:900;background:linear-gradient(90deg,var(--A),var(--C),var(--B));-webkit-background-clip:text;background-clip:text;color:transparent}
-.mut{color:var(--mut)}
-.big{font-size:22px;font-weight:700;margin:14px 0}
-.btn{display:block;width:100%;padding:18px;margin:12px 0;border:0;border-radius:16px;font-size:21px;font-weight:700;color:#fff;background:#2c2858;font-family:inherit}
-.btn.go{background:linear-gradient(90deg,#1f8f5f,#2ec4b6)}
-.btn:active{transform:scale(.98)}
-input{width:100%;padding:16px;font-size:22px;border-radius:14px;border:2px solid #3a3570;background:#0d0b1e;color:#fff;text-align:center;font-family:inherit;-webkit-user-select:text;user-select:text}
-.err{color:#ff8fa3;min-height:22px;margin-top:6px}
-.card{background:var(--card);border-radius:18px;padding:18px;margin:14px 0}
-.rule{font-size:15px;line-height:1.6;color:var(--mut)}
-.rule b{color:var(--C)}
-.spin{width:44px;height:44px;border:5px solid #3a3570;border-top-color:var(--C);border-radius:50%;margin:16px auto;animation:sp 1s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.q{font-size:25px;font-weight:900;margin:6px 0 2px;line-height:1.35}
-.round{font-size:14px;color:var(--mut);margin-top:4px}
-/* 三等份圓圈 */
-.wheel{position:relative;width:min(88vw,400px);aspect-ratio:1;margin:14px auto 6px}
-.wheel svg{width:100%;height:100%;overflow:visible}
-.wheel path{stroke:#0d0b1e;stroke-width:2.5;transition:opacity .3s, transform .3s, filter .3s;transform-origin:0 0;cursor:pointer}
+html,body{margin:0;min-height:100%;color:var(--ink);
+  background:radial-gradient(circle at 85% 0%,rgba(78,124,255,.22),transparent 40%),radial-gradient(circle at 0% 100%,rgba(255,200,75,.10),transparent 45%),linear-gradient(180deg,#14214A,#0B1430) fixed;
+  font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,Arial,sans-serif;-webkit-user-select:none;user-select:none}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 6px;max-width:520px;margin:0 auto}
+.brand-mini{color:var(--gold);font-weight:900;font-size:15px;letter-spacing:.04em}
+.hr{display:flex;align-items:center;gap:8px}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:900;letter-spacing:.06em;color:var(--gold-soft)}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--B);box-shadow:0 0 8px var(--B)}
+#dot{width:9px;height:9px;border-radius:50%;background:var(--green)}
+#dot.bad{background:var(--danger);animation:bl 1s infinite}@keyframes bl{50%{opacity:.2}}
+#langBtn{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:999px;height:32px;padding:0 10px;font-size:13px;font-family:inherit}
+main{padding:8px 20px 36px;max-width:520px;margin:0 auto;text-align:center}
+.mut{color:var(--muted)}
+.emoji{font-size:58px;line-height:1;margin:34px 0 14px}
+.title{font-size:30px;font-weight:900;margin:0 0 8px;line-height:1.25}
+.desc{font-size:16px;color:var(--muted);line-height:1.55;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin:16px 0;box-shadow:var(--shadow)}
+.rule{font-size:15px;line-height:1.65;color:var(--muted);text-align:center}
+.rule b{color:var(--gold)}
+/* 語言按鈕 */
+.lang-btn{display:block;width:100%;text-align:left;padding:20px 22px;margin:14px 0;border-radius:22px;border:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));color:var(--ink);font-family:inherit}
+.lang-btn:active,.lang-btn:hover{border-color:var(--gold);background:rgba(255,200,75,.10)}
+.lang-btn b{display:block;font-size:24px;font-weight:900}
+.lang-btn small{color:var(--muted);font-size:13px}
+/* 主按鈕／輸入 */
+.cta{display:block;width:100%;padding:18px;margin:14px 0 0;border:0;border-radius:18px;font-size:21px;font-weight:900;font-family:inherit;
+  color:#3B2600;background:linear-gradient(135deg,#FFD66E,#F5A623);box-shadow:0 8px 0 #B9781A,0 14px 24px rgba(0,0,0,.3)}
+.cta:active{transform:translateY(4px);box-shadow:0 4px 0 #B9781A}
+.cta:disabled{opacity:.6}
+.input-label{display:block;text-align:left;font-size:16px;font-weight:900;margin-bottom:10px}
+input{width:100%;padding:16px;font-size:22px;border-radius:16px;border:2px solid var(--navy-3);background:#0B1430;color:#fff;text-align:center;font-family:inherit;outline:0;-webkit-user-select:text;user-select:text}
+input:focus{border-color:var(--gold)}
+.err{color:#FF9AA4;min-height:22px;margin-top:8px;font-weight:700}
+/* 等待 */
+.orbit{position:relative;width:170px;height:170px;margin:30px auto 18px}
+.orbit::before{content:"";position:absolute;inset:0;border:2px dashed rgba(255,200,75,.5);border-radius:50%;animation:spin 14s linear infinite}
+.orbit .core{position:absolute;inset:30px;border-radius:50%;background:var(--navy-2);border:1px solid rgba(255,200,75,.35);display:grid;place-items:center;font-size:48px}
+.orbit i{position:absolute;width:20px;height:20px;border-radius:50%}
+.orbit i.a{background:var(--A);top:14px;right:18px}.orbit i.b{background:var(--B);bottom:22px;left:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.name-pill{display:inline-flex;align-items:center;gap:10px;padding:8px 18px 8px 8px;border-radius:999px;background:rgba(255,200,75,.10);border:1px solid rgba(255,200,75,.45);font-size:19px;font-weight:900;margin:14px 0 4px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--gold);color:#3B2600;display:grid;place-items:center;font-size:15px;font-weight:900}
+.count-card{display:inline-block;min-width:220px;padding:16px 26px;border-radius:22px;background:rgba(255,255,255,.05);border:1px solid var(--line);margin-top:16px}
+.count-card b{display:block;font-size:46px;color:var(--gold);line-height:1.1}
+/* 作答 */
+.meta{display:flex;justify-content:space-between;align-items:center;margin:6px 0 12px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;font-size:15px;font-weight:900}
+.chip.round{color:var(--gold);background:rgba(255,200,75,.12);border:1px solid rgba(255,200,75,.4)}
+.chip.alive{color:var(--green);background:rgba(85,214,138,.12);border:1px solid rgba(85,214,138,.4)}
+.q-card{background:rgba(9,17,38,.65);border:1px solid var(--line);border-radius:22px;padding:18px 16px;font-size:25px;font-weight:900;line-height:1.38}
+.hint{color:var(--gold-soft);font-size:15px;font-weight:900;margin:14px 0 8px}
+.wheel{position:relative;width:min(86vw,380px);aspect-ratio:1;margin:0 auto}
+.wheel svg{width:100%;height:100%;overflow:visible;display:block}
+.wheel path{transition:opacity .3s,transform .3s,filter .3s;transform-origin:0 0;cursor:pointer}
 .wheel.locked path{cursor:default}
-.wheel path.dim{opacity:.25}
-.wheel path.sel{transform:scale(1.05);filter:drop-shadow(0 0 8px #fff)}
-.wheel .lab{position:absolute;width:34%;transform:translate(-50%,-50%);font-weight:900;font-size:clamp(15px,4.6vw,21px);line-height:1.2;
-  pointer-events:none;color:#fff;text-shadow:0 1px 3px #0006;word-break:break-word;transition:opacity .3s}
-.wheel .lab.l2{color:#2a1e00;text-shadow:none}
-.wheel .lab.dim{opacity:.35}
-.wheel .lab .ok{display:block;font-size:.72em;margin-top:4px;background:#fff;color:#111;border-radius:999px;padding:2px 6px;text-shadow:none}
-.center{position:absolute;left:50%;top:50%;width:25%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#0d0b1e;
-  border:4px solid #fff3;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,8vw,36px);font-weight:900;pointer-events:none}
-.center.hurry{color:var(--A);border-color:var(--A)}
-.center.small{font-size:14px}
-.status{min-height:30px;font-size:18px;font-weight:700;margin-top:6px}
+.wheel path.dim{opacity:.22}
+.wheel path.sel{transform:scale(1.06);filter:drop-shadow(0 0 10px rgba(255,255,255,.8))}
+.wheel .lab{position:absolute;width:29%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:5px;
+  font-weight:900;font-size:clamp(15px,4.4vw,20px);line-height:1.15;pointer-events:none;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.35);word-break:break-word;transition:opacity .3s}
+.wheel .lab .lt{width:30px;height:30px;border-radius:50%;background:rgba(16,26,54,.82);border:2px solid rgba(255,255,255,.85);display:grid;place-items:center;font-size:15px;text-shadow:none}
+.wheel .lab.dim{opacity:.3}
+.wheel .lab .ok{font-size:.7em;background:#fff;color:var(--navy);border-radius:999px;padding:3px 10px;text-shadow:none}
+.center{position:absolute;left:50%;top:50%;width:29%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:var(--navy);
+  border:5px solid var(--gold);box-shadow:0 0 0 6px rgba(16,26,54,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.center b{font-size:clamp(30px,10vw,42px);color:var(--gold);line-height:1}
+.center small{font-size:10px;letter-spacing:.08em;color:var(--muted);margin-top:2px}
+.center.hurry{border-color:var(--danger)}.center.hurry b{color:var(--danger);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.12)}}
+.status{min-height:44px;font-size:18px;font-weight:900;margin-top:14px;color:var(--gold-soft)}
+.status.ok{color:var(--green)}.status.bad{color:var(--danger)}
 /* 結果 */
-.res{font-size:58px;font-weight:900;margin:26px 0 6px}
-.res.live{color:var(--ok);text-shadow:0 0 30px #2ee59d88;animation:zoom .6s cubic-bezier(.2,1.6,.4,1)}
-.res.dead{color:#8a87a8;filter:grayscale(1)}
+.badge{width:118px;height:118px;border-radius:50%;margin:26px auto 12px;display:grid;place-items:center;font-size:60px;font-weight:900}
+.badge.live{background:var(--green);color:var(--navy);box-shadow:0 0 0 14px rgba(85,214,138,.18);animation:zoom .6s cubic-bezier(.2,1.6,.4,1)}
+.badge.dead{background:#3A4560;color:#C9D0E0;box-shadow:0 0 0 14px rgba(143,154,175,.12)}
 @keyframes zoom{0%{transform:scale(.2)}100%{transform:scale(1)}}
-.rows{text-align:left;margin-top:14px}
-.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--card);margin:8px 0;font-size:18px}
-.row .sw{width:16px;height:16px;border-radius:50%;flex:0 0 auto}
-.row .nm{flex:1}
-.row .n{font-weight:900;font-size:22px}
-.row.win{outline:3px solid var(--ok)}
-.row .tag{font-size:13px;background:var(--ok);color:#06331f;border-radius:999px;padding:2px 8px;margin-left:6px}
-.row.mine .nm::after{content:" ←";color:var(--C)}
+.res{font-size:46px;font-weight:900;margin:4px 0}
+.res.live{color:var(--green)}.res.dead{color:var(--gray)}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 12px}
+.tile{border-radius:18px;padding:12px 6px;color:#fff;font-weight:900;position:relative}
+.tile.o0{background:#2B9ED6}.tile.o1{background:#C94A58}.tile.o2{background:#7E66CC}
+.tile b{display:block;font-size:30px;line-height:1.1}
+.tile span{display:block;font-size:13px;line-height:1.3;margin-top:4px}
+.tile.win{outline:4px solid var(--green);outline-offset:2px}
+.tile.dim{opacity:.55}
+.tile .me{position:absolute;top:-10px;right:-6px;background:var(--gold);color:#3B2600;font-size:11px;border-radius:999px;padding:2px 7px}
+.verdict{border-radius:18px;padding:14px;font-weight:900;font-size:17px;background:rgba(85,214,138,.12);border:1px solid rgba(85,214,138,.45);color:var(--green)}
+.verdict.gold{background:rgba(255,200,75,.12);border-color:rgba(255,200,75,.45);color:var(--gold)}
+.none-line{font-size:14px;color:var(--muted);margin-top:10px}
+/* 觀戰 */
+.spect-top{text-align:center}
+.spect-top .emoji{margin:6px 0 10px;font-size:52px}
+.big-num{font-size:44px;font-weight:900;color:var(--gold);line-height:1.1}
+.livetag{display:inline-block;font-size:12px;font-weight:900;color:var(--green);border:1px solid rgba(85,214,138,.5);border-radius:999px;padding:3px 10px}
+/* 結束 */
+.winners{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:6px}
+.winners span{padding:10px 18px;border-radius:16px;border:2px solid var(--gold);color:var(--gold);font-size:22px;font-weight:900;background:rgba(255,200,75,.08)}
 .conf{position:fixed;top:-20px;width:10px;height:14px;z-index:9;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
-.langs .btn:nth-child(1){background:var(--A)}.langs .btn:nth-child(2){background:#3a6df0}.langs .btn:nth-child(3){background:#1f8f5f}
-.demo{position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:12px;color:var(--C);background:#0008;padding:4px}
-.winners{font-size:28px;font-weight:900;color:var(--C);line-height:1.5}
+.spin{width:44px;height:44px;border:5px solid var(--navy-3);border-top-color:var(--gold);border-radius:50%;margin:20px auto;animation:spin 1s linear infinite}
+.foot{font-size:13px;color:var(--muted);margin-top:22px}
+.demo{position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:12px;color:var(--gold);background:#0008;padding:4px}
 </style>
 </head>
 <body>
-<header><span class="t" id="hTitle">少數決大逃殺</span><span><button id="langBtn">🌐</button><span id="dot"></span></span></header>
+<header><span class="brand-mini" id="hTitle">少數決大逃殺</span><span class="hr"><span class="live" id="liveTag"></span><button id="langBtn" aria-label="Language">🌐</button><span id="dot"></span></span></header>
 <main id="app"></main>
 <div class="demo" id="demoNote" style="display:none">DEMO 單機試玩模式（還沒接上 Firebase）</div>
 
@@ -83,33 +133,45 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const COLORS = ["var(--A)", "var(--B)", "var(--C)"];
 
 const T = {
-  zh: { title: "少數決大逃殺", enterName: "輸入你的名字", namePh: "最多 10 個字", join: "加入遊戲", nameReq: "請輸入名字",
-    joined: "已加入，等待主持人開始", joinedN: "目前已加入 {n} 人", you: "你的名字",
-    rule: "每題選一個選項，選「<b>最少人</b>」選的那一個才能存活！<br>時間內沒作答直接淘汰。",
-    round: "第 {n} 輪", ready: "準備", tap: "點一個選項（送出後不能改）", sending: "送出中…", sent: "✓ 已送出",
-    late: "時間已過，這次沒有送出", timeUp: "時間到！等待公布結果…", noAns: "你沒有在時間內作答",
-    live: "存活！", dead: "淘汰…", voidR: "全部選同一個，這輪不算！", noR: "沒有人作答，這輪不算", tieR: "並列最少，都存活！",
-    ppl: "{n} 人", noneRow: "未作答", survive: "存活", spect: "觀戰中", left: "還剩 {n} 人",
-    lateJoin: "遊戲已經開始了，你可以一起觀戰", waitNext: "等待下一題…", answering: "作答中…", winner: "你是贏家！",
-    over: "遊戲結束", winners: "贏家", noHost: "等待主持人開啟遊戲…", joinFail: "加入失敗，請再試一次", closed: "遊戲已經開始，無法加入", lang: "語言" },
-  en: { title: "Minority Rules", enterName: "Enter your name", namePh: "Up to 10 characters", join: "Join", nameReq: "Please enter a name",
-    joined: "You're in! Waiting for the host", joinedN: "{n} players joined", you: "You are",
-    rule: "Pick one option each round. Only the option picked by the <b>FEWEST</b> people survives!<br>No answer in time = eliminated.",
-    round: "Round {n}", ready: "Ready", tap: "Tap one option (can't change after)", sending: "Sending…", sent: "✓ Sent",
-    late: "Too late — not sent", timeUp: "Time's up! Waiting for results…", noAns: "You didn't answer in time",
-    live: "SURVIVED!", dead: "ELIMINATED…", voidR: "Everyone picked the same — round doesn't count!", noR: "No one answered — round doesn't count", tieR: "Tied for fewest — both survive!",
-    ppl: "{n}", noneRow: "No answer", survive: "Survive", spect: "Spectating", left: "{n} players left",
-    lateJoin: "The game has started — you can watch", waitNext: "Waiting for the next question…", answering: "Answering…", winner: "YOU WIN!",
-    over: "Game over", winners: "Winners", noHost: "Waiting for the host to open the game…", joinFail: "Couldn't join, please try again", closed: "Game already started — can't join", lang: "Language" },
-  vi: { title: "Đấu Trường Thiểu Số", enterName: "Nhập tên của bạn", namePh: "Tối đa 10 ký tự", join: "Tham gia", nameReq: "Vui lòng nhập tên",
-    joined: "Đã tham gia, chờ MC bắt đầu", joinedN: "Đã có {n} người tham gia", you: "Tên của bạn",
-    rule: "Mỗi vòng chọn một đáp án. Chỉ đáp án <b>ÍT</b> người chọn nhất được sống sót!<br>Không trả lời kịp sẽ bị loại.",
-    round: "Vòng {n}", ready: "Chuẩn bị", tap: "Chạm chọn một đáp án (không thể đổi)", sending: "Đang gửi…", sent: "✓ Đã gửi",
-    late: "Quá giờ — không gửi được", timeUp: "Hết giờ! Chờ công bố kết quả…", noAns: "Bạn không trả lời kịp",
-    live: "SỐNG SÓT!", dead: "BỊ LOẠI…", voidR: "Tất cả chọn giống nhau — vòng này không tính!", noR: "Không ai trả lời — vòng này không tính", tieR: "Đồng hạng ít nhất — đều sống sót!",
-    ppl: "{n} người", noneRow: "Không trả lời", survive: "Sống", spect: "Đang xem", left: "Còn {n} người",
-    lateJoin: "Trò chơi đã bắt đầu — bạn có thể xem", waitNext: "Chờ câu tiếp theo…", answering: "Đang trả lời…", winner: "BẠN THẮNG!",
-    over: "Kết thúc", winners: "Người thắng", noHost: "Đang chờ MC mở trò chơi…", joinFail: "Không tham gia được, thử lại", closed: "Trò chơi đã bắt đầu — không thể tham gia", lang: "Ngôn ngữ" }
+  zh: { title: "少數決大逃殺", chooseLang: "選擇你的語言", chooseLangSub: "請選擇最方便閱讀的語言",
+    enterName: "輸入你的名字", nameSub: "名字會顯示在大螢幕與贏家名單", nameLabel: "你的名字", namePh: "最多 10 個字", join: "加入遊戲 →", nameReq: "請輸入名字",
+    joined: "已加入！", joinedSub: "等待主持人開始遊戲", joinedN: "目前已加入玩家",
+    rule: "每題選一個選項，選「<b>最少人</b>」選的那一個才能存活！<br>時間內沒作答直接淘汰，送出後不能更改。",
+    round: "第 {n} 輪", alive: "剩 {n} 人", ready: "準備", tap: "點選一個區塊送出答案", sending: "送出中…", sent: "✓ 已送出", sentLock: "✓ 已送出，不能更改", seconds: "SECONDS",
+    late: "時間已過，這次沒有送出", timeUp: "時間到！請看大螢幕公布結果", noAns: "你沒有在時間內作答", hintEnd: "倒數結束前送出即可",
+    live: "存活！", dead: "淘汰…", liveSub: "你選到人數最少的選項", deadSub: "你選的不是人數最少的選項", noAnsSub: "時間內沒有作答",
+    voidR: "全部選同一個，這輪不算！", noR: "沒有人作答，這輪不算", tieR: "最少人數並列，都存活！", survOpt: "「{n}」為本輪存活選項",
+    ppl: "{n} 人", noneRow: "未作答 {n} 人", mine: "你", spect: "你已淘汰，進入觀戰模式", spectSub: "仍可一起看結果，幫朋友加油！",
+    lateJoin: "遊戲已經開始，進入觀戰模式", lateSub: "下一場開始時就能加入", roundNow: "第 {n} 輪進行中", aliveNow: "目前存活",
+    waitNext: "下一輪即將開始，請繼續留在此頁", answering: "大家作答中…", winner: "恭喜你是贏家！", winnerSub: "你成功活到最後一輪",
+    over: "遊戲結束", winners: "最終贏家", noHost: "等待主持人開啟遊戲…", joinFail: "加入失敗，請再試一次", closed: "遊戲已經開始，無法加入", watchFoot: "觀戰不會影響遊戲結果，請看前方大螢幕！",
+    tagLobby: "LOBBY", tagAnswer: "ANSWER NOW", tagWatch: "WATCH MODE", tagResult: "RESULT", tagOver: "GAME OVER" },
+  en: { title: "Minority Rules", chooseLang: "Choose your language", chooseLangSub: "Pick the language you read best",
+    enterName: "Enter your name", nameSub: "Your name will appear on the big screen", nameLabel: "Your name", namePh: "Up to 10 characters", join: "Join →", nameReq: "Please enter a name",
+    joined: "You're in!", joinedSub: "Waiting for the host to start", joinedN: "Players joined",
+    rule: "Pick one option each round. Only the option picked by the <b>FEWEST</b> people survives!<br>No answer in time = out. You can't change your answer.",
+    round: "Round {n}", alive: "{n} left", ready: "Ready", tap: "Tap one slice to answer", sending: "Sending…", sent: "✓ Sent", sentLock: "✓ Sent — can't change", seconds: "SECONDS",
+    late: "Too late — not sent", timeUp: "Time's up! Watch the big screen", noAns: "You didn't answer in time", hintEnd: "Answer before time runs out",
+    live: "SURVIVED!", dead: "ELIMINATED…", liveSub: "You picked the least popular option", deadSub: "Your option wasn't the least popular", noAnsSub: "No answer in time",
+    voidR: "Everyone picked the same — round doesn't count!", noR: "No one answered — round doesn't count", tieR: "Tied for fewest — both survive!", survOpt: "\"{n}\" survives this round",
+    ppl: "{n}", noneRow: "No answer: {n}", mine: "You", spect: "You're out — now spectating", spectSub: "Keep watching and cheer for your friends!",
+    lateJoin: "The game has started — spectating", lateSub: "You can join the next game", roundNow: "Round {n} in progress", aliveNow: "Still alive",
+    waitNext: "Next round is coming — stay on this page", answering: "Players are answering…", winner: "YOU WIN!", winnerSub: "You made it to the very end",
+    over: "Game over", winners: "Winners", noHost: "Waiting for the host to open the game…", joinFail: "Couldn't join, please try again", closed: "Game already started — can't join", watchFoot: "Watching doesn't affect the game — enjoy the big screen!",
+    tagLobby: "LOBBY", tagAnswer: "ANSWER NOW", tagWatch: "WATCH MODE", tagResult: "RESULT", tagOver: "GAME OVER" },
+  vi: { title: "Đấu Trường Thiểu Số", chooseLang: "Chọn ngôn ngữ", chooseLangSub: "Chọn ngôn ngữ bạn đọc dễ nhất",
+    enterName: "Nhập tên của bạn", nameSub: "Tên sẽ hiện trên màn hình lớn", nameLabel: "Tên của bạn", namePh: "Tối đa 10 ký tự", join: "Tham gia →", nameReq: "Vui lòng nhập tên",
+    joined: "Đã tham gia!", joinedSub: "Chờ MC bắt đầu trò chơi", joinedN: "Người đã tham gia",
+    rule: "Mỗi vòng chọn một đáp án. Chỉ đáp án <b>ÍT</b> người chọn nhất được sống sót!<br>Không trả lời kịp sẽ bị loại. Không thể đổi đáp án.",
+    round: "Vòng {n}", alive: "Còn {n} người", ready: "Chuẩn bị", tap: "Chạm một phần để trả lời", sending: "Đang gửi…", sent: "✓ Đã gửi", sentLock: "✓ Đã gửi — không thể đổi", seconds: "GIÂY",
+    late: "Quá giờ — không gửi được", timeUp: "Hết giờ! Xem màn hình lớn", noAns: "Bạn không trả lời kịp", hintEnd: "Trả lời trước khi hết giờ",
+    live: "SỐNG SÓT!", dead: "BỊ LOẠI…", liveSub: "Bạn chọn đáp án ít người nhất", deadSub: "Đáp án của bạn không phải ít người nhất", noAnsSub: "Không trả lời kịp",
+    voidR: "Tất cả chọn giống nhau — vòng này không tính!", noR: "Không ai trả lời — vòng này không tính", tieR: "Đồng hạng ít nhất — đều sống sót!", survOpt: "«{n}» được sống sót vòng này",
+    ppl: "{n} người", noneRow: "Không trả lời: {n}", mine: "Bạn", spect: "Bạn đã bị loại — đang xem", spectSub: "Vẫn xem kết quả và cổ vũ bạn bè nhé!",
+    lateJoin: "Trò chơi đã bắt đầu — đang xem", lateSub: "Bạn có thể tham gia ván sau", roundNow: "Đang chơi vòng {n}", aliveNow: "Còn sống",
+    waitNext: "Vòng tiếp theo sắp bắt đầu — ở lại trang này", answering: "Mọi người đang trả lời…", winner: "BẠN THẮNG!", winnerSub: "Bạn đã trụ đến cuối cùng",
+    over: "Kết thúc", winners: "Người thắng", noHost: "Đang chờ MC mở trò chơi…", joinFail: "Không tham gia được, thử lại", closed: "Trò chơi đã bắt đầu — không thể tham gia", watchFoot: "Xem không ảnh hưởng kết quả — hãy xem màn hình lớn!",
+    tagLobby: "LOBBY", tagAnswer: "ANSWER NOW", tagWatch: "WATCH MODE", tagResult: "RESULT", tagOver: "GAME OVER" }
 };
 let lang = localStorage.getItem("minority_lang");
 const t = (k, n) => (T[lang] || T.zh)[k].replace("{n}", n);
@@ -148,7 +210,7 @@ const api = DEMO ? {
 };
 
 // ================= 狀態 =================
-let pub = undefined, me = null, meLoaded = false, lastRev = null, offset = 0, netOk = true, viewKey = "", lastJoined = -1;
+let pub = undefined, me = null, meLoaded = false, lastRev = null, offset = 0, netOk = true, viewKey = "";
 const sNow = () => Date.now() + offset;
 const ansKey = rk => "minority_ans_" + rk;
 const getMine = rk => { try { return JSON.parse(localStorage.getItem(ansKey(rk))); } catch (e) { return null; } };
@@ -184,23 +246,27 @@ async function poll() {
 }
 
 // ================= 畫面 =================
+function setTag(k) { $("liveTag").textContent = k ? t(k) : ""; }
 function render() {
   if (!lang) return renderLang();
   $("hTitle").textContent = t("title");
-  if (pub === undefined) return setView("loading", () => `<div class="spin"></div>`);
-  if (!pub) return setView("nohost", () => `<h1>${t("title")}</h1><div class="spin"></div><p class="mut">${t("noHost")}</p>`);
+  if (pub === undefined) { setTag(""); return setView("loading", () => `<div class="spin"></div>`); }
+  if (!pub) { setTag(""); return setView("nohost", () => `<div class="emoji">🎯</div><div class="title">${t("title")}</div><div class="spin"></div><p class="desc">${t("noHost")}</p>`); }
   const ph = pub.phase;
   if (!me) {
-    if (ph === "lobby") return renderName();
-    return renderSpect();
+    if (ph === "lobby") { setTag("tagLobby"); return renderName(); }
+    setTag("tagWatch"); return renderSpect();
   }
-  if (ph === "lobby") return renderWait();
-  if (ph === "answer") return me.st === "alive" ? renderAnswer() : renderSpect();
+  if (ph === "lobby") { setTag("tagLobby"); return renderWait(); }
+  if (ph === "answer") {
+    if (me.st === "alive") { setTag("tagAnswer"); return renderAnswer(); }
+    setTag("tagWatch"); return renderSpect();
+  }
   if (ph === "reveal") {
-    if (me.st === "alive" || me.outRound === pub.round) return renderResult();
-    return renderSpect();
+    if (me.st === "alive" || me.outRound === pub.round) { setTag("tagResult"); return renderResult(); }
+    setTag("tagWatch"); return renderSpect();
   }
-  if (ph === "end") return renderEnd();
+  if (ph === "end") { setTag("tagOver"); return renderEnd(); }
 }
 function setView(key, html, after) {
   if (key === viewKey) return false;
@@ -209,18 +275,27 @@ function setView(key, html, after) {
 }
 
 function renderLang() {
-  $("hTitle").textContent = "少數決大逃殺";
-  setView("lang", () => `<h1>少數決大逃殺</h1><p class="mut">Minority Rules · Đấu Trường Thiểu Số</p>
-    <div class="langs"><button class="btn" data-l="zh">中文</button><button class="btn" data-l="en">English</button><button class="btn" data-l="vi">Tiếng Việt</button></div>`,
+  $("hTitle").textContent = "少數決大逃殺"; setTag("");
+  setView("lang", () => `<div class="emoji">🎯</div><div class="title">選擇你的語言</div>
+    <p class="desc">Choose your language · Chọn ngôn ngữ</p>
+    <div style="margin-top:22px">
+      <button class="lang-btn" data-l="zh"><b>繁體中文</b><small>Traditional Chinese</small></button>
+      <button class="lang-btn" data-l="en"><b>English</b><small>English</small></button>
+      <button class="lang-btn" data-l="vi"><b>Tiếng Việt</b><small>Vietnamese</small></button>
+    </div>`,
     () => document.querySelectorAll("[data-l]").forEach(b => b.onclick = () => { lang = b.dataset.l; localStorage.setItem("minority_lang", lang); viewKey = ""; render(); }));
 }
 $("langBtn").onclick = () => { lang = null; viewKey = ""; render(); };
 
 function renderName() {
-  setView("name|" + lang, () => `<h1>${t("title")}</h1><div class="card rule">${t("rule")}</div>
-    <div class="big">${t("enterName")}</div>
-    <input id="nm" maxlength="20" placeholder="${t("namePh")}" autocomplete="off" value="${esc(localStorage.getItem("minority_name") || "")}">
-    <div class="err" id="nmErr"></div><button class="btn go" id="joinBtn">${t("join")}</button>`,
+  setView("name|" + lang, () => `<div class="emoji">👋</div><div class="title">${t("enterName")}</div><p class="desc">${t("nameSub")}</p>
+    <div class="card" style="text-align:left">
+      <label class="input-label" for="nm">${t("nameLabel")}</label>
+      <input id="nm" maxlength="20" placeholder="${t("namePh")}" autocomplete="off" value="${esc(localStorage.getItem("minority_name") || "")}">
+      <div class="err" id="nmErr"></div>
+      <button class="cta" id="joinBtn">${t("join")}</button>
+    </div>
+    <div class="rule">${t("rule")}</div>`,
     () => {
       const inp = $("nm");
       inp.oninput = () => { const a = Array.from(inp.value); if (a.length > 10) inp.value = a.slice(0, 10).join(""); };
@@ -243,13 +318,15 @@ async function join() {
   } catch (e) { $("nmErr").textContent = t("joinFail"); $("joinBtn").disabled = false; }
 }
 
+function initial(s) { return Array.from(String(s || "?"))[0].toUpperCase(); }
 function renderWait() {
   const nm = me.dname || me.name;
-  setView("wait|" + lang + "|" + nm, () => `<h1>${t("title")}</h1>
-    <div class="card"><div class="mut">${t("you")}</div><div class="big" style="font-size:30px;margin:6px 0">${esc(nm)}</div></div>
-    <div class="big" style="color:var(--ok)">${t("joined")}</div><div class="spin"></div>
-    <div class="mut" id="jn"></div><div class="card rule">${t("rule")}</div>`);
-  const jn = $("jn"); if (jn) jn.textContent = t("joinedN", pub.joined || 0);
+  setView("wait|" + lang + "|" + nm, () => `<div class="orbit"><i class="a"></i><i class="b"></i><div class="core">⌛</div></div>
+    <div class="title">${t("joined")}</div><p class="desc">${t("joinedSub")}</p>
+    <div class="name-pill"><span class="av">${esc(initial(nm))}</span>${esc(nm)}</div><br>
+    <div class="count-card"><b id="jn">0</b><span class="mut">${t("joinedN")}</span></div>
+    <div class="rule" style="margin-top:22px">${t("rule")}</div>`);
+  const jn = $("jn"); if (jn) jn.textContent = pub.joined || 0;
 }
 
 function qText() { return (pub.q && (pub.q[lang] || pub.q.zh)) || ""; }
@@ -260,17 +337,21 @@ function wheelHTML(selectable) {
   let paths = "", labs = "";
   for (let i = 0; i < 3; i++) {
     const a0 = -90 + i * 120, a1 = a0 + 120, am = (a0 + 60) * Math.PI / 180;
-    paths += `<path data-i="${i}" d="M0,0 L${pt(a0)} A${R},${R} 0 0 1 ${pt(a1)} Z" fill="${COLORS[i]}"/>`;
-    labs += `<div class="lab l${i}" id="lab${i}" style="left:${50 + Math.cos(am) * 27}%;top:${50 + Math.sin(am) * 27}%">${esc(optText(i))}</div>`;
+    paths += `<path data-i="${i}" d="M0,0 L${pt(a0)} A${R},${R} 0 0 1 ${pt(a1)} Z" fill="${COLORS[i]}" stroke="#101A36" stroke-width="2.5"/>`;
+    labs += `<div class="lab l${i}" id="lab${i}" style="left:${50 + Math.cos(am) * 31.5}%;top:${50 + Math.sin(am) * 31.5}%"><span class="lt">${"ABC"[i]}</span><span>${esc(optText(i))}</span></div>`;
   }
-  return `<div class="wheel ${selectable ? "" : "locked"}" id="wheel"><svg viewBox="-100 -100 200 200">${paths}</svg>${labs}<div class="center" id="cd"></div></div>`;
+  return `<div class="wheel ${selectable ? "" : "locked"}" id="wheel"><svg viewBox="-106 -106 212 212">
+    <circle r="104" fill="none" stroke="rgba(255,200,75,.35)" stroke-width="6"/><circle r="99" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="4"/>${paths}</svg>
+    ${labs}<div class="center" id="cd"><b id="cdN"></b><small id="cdS"></small></div></div>`;
 }
 function renderAnswer() {
   const rk = pub.rkey;
   const mine = getMine(rk);
   const key = "ans|" + lang + "|" + rk + "|" + (mine ? mine.c + mine.s : "-");
-  setView(key, () => `<div class="round">${t("round", pub.round)} · ${t("left", pub.alive)}</div>
-    <div class="q">${esc(qText())}</div>${wheelHTML(!mine)}<div class="status" id="st"></div>`,
+  setView(key, () => `<div class="meta"><span class="chip round">${t("round", pub.round)}</span><span class="chip alive">♥ ${t("alive", pub.alive)}</span></div>
+    <div class="q-card">${esc(qText())}</div>
+    <div class="hint">${t("tap")}</div>
+    ${wheelHTML(!mine)}<div class="status" id="st"></div>`,
     () => {
       document.querySelectorAll("#wheel path").forEach(p => p.addEventListener("pointerdown", e => { e.preventDefault(); choose(+p.dataset.i); }));
       if (mine) markChoice(mine.c, mine.s);
@@ -310,59 +391,77 @@ function tick() {
   const cd = $("cd"), st = $("st");
   if (!cd || !pub || pub.phase !== "answer") return;
   const now = sNow(), left = pub.deadline - now, mine = getMine(pub.rkey);
-  if (now < pub.startAt) { cd.textContent = t("ready"); cd.className = "center small"; }
-  else { cd.textContent = Math.max(0, Math.ceil(left / 1000)); cd.className = "center" + (left < 3500 ? " hurry" : ""); }
+  if (now < pub.startAt) { $("cdN").textContent = t("ready"); $("cdN").style.fontSize = "18px"; $("cdS").textContent = ""; cd.className = "center"; }
+  else { const s = Math.max(0, Math.ceil(left / 1000)); $("cdN").textContent = String(s).padStart(2, "0"); $("cdN").style.fontSize = ""; $("cdS").textContent = t("seconds"); cd.className = "center" + (left < 3500 && left > 0 ? " hurry" : ""); }
   if (st) {
-    if (mine && mine.s === "sent") st.textContent = left > 0 ? t("sent") : t("timeUp");
-    else if (mine && mine.s === "late") st.textContent = t("late");
-    else if (mine) st.textContent = t("sending");
-    else st.textContent = left > 0 ? (now < pub.startAt ? "" : t("tap")) : t("noAns");
+    let txt = "", cls = "status";
+    if (mine && mine.s === "sent") { txt = left > 0 ? t("sentLock") : t("timeUp"); cls += " ok"; }
+    else if (mine && mine.s === "late") { txt = t("late"); cls += " bad"; }
+    else if (mine) txt = t("sending");
+    else if (left > 0) txt = now < pub.startAt ? "" : t("hintEnd");
+    else { txt = t("noAns"); cls += " bad"; }
+    st.textContent = txt; st.className = cls;
   }
   if (left <= 0 && !mine) $("wheel") && $("wheel").classList.add("locked");
 }
 setInterval(tick, 200);
 
-function countRows() {
+function tilesHTML() {
   const c = pub.counts || [0, 0, 0], so = pub.survOpts || [], mine = getMine(pub.rkey);
-  let h = "";
+  let h = `<div class="tiles">`;
   for (let i = 0; i < 3; i++) {
-    h += `<div class="row ${so.includes(i) ? "win" : ""} ${mine && mine.c === i && mine.s === "sent" ? "mine" : ""}">
-      <span class="sw" style="background:${COLORS[i]}"></span><span class="nm">${esc(optText(i))}${so.includes(i) ? `<span class="tag">${t("survive")}</span>` : ""}</span>
-      <span class="n">${t("ppl", c[i] || 0)}</span></div>`;
+    const win = so.includes(i), isMine = mine && mine.c === i && mine.s === "sent";
+    h += `<div class="tile o${i} ${win ? "win" : (so.length ? "dim" : "")}">${isMine ? `<span class="me">${t("mine")}</span>` : ""}<b>${c[i] || 0}</b><span>${"ABC"[i]} ${esc(optText(i))}</span></div>`;
   }
-  if (pub.none) h += `<div class="row"><span class="sw" style="background:#4a4766"></span><span class="nm">${t("noneRow")}</span><span class="n">${t("ppl", pub.none)}</span></div>`;
-  return `<div class="rows">${h}</div>`;
+  h += `</div>`;
+  if (pub.none) h += `<div class="none-line">${t("noneRow", pub.none)}</div>`;
+  return h;
 }
-function resultNote() {
-  return pub.result === "allSame" ? t("voidR") : pub.result === "noAnswers" ? t("noR") : pub.result === "tie" ? t("tieR") : "";
+function verdictHTML() {
+  const so = pub.survOpts || [];
+  if (pub.result === "allSame") return `<div class="verdict gold">${t("voidR")}</div>`;
+  if (pub.result === "noAnswers") return `<div class="verdict gold">${t("noR")}</div>`;
+  const names = so.map(i => "ABC"[i] + " " + optText(i)).join("、");
+  return `<div class="verdict">✓ ${esc(t("survOpt", names))}${pub.result === "tie" ? "<br>" + t("tieR") : ""}</div>`;
 }
 function renderResult() {
-  const live = me.st === "alive";
-  const fresh = setView("res|" + lang + "|" + pub.rkey + "|" + live, () => `<div class="round">${t("round", pub.round)}</div>
+  const live = me.st === "alive", mine = getMine(pub.rkey);
+  const sub = live ? t("liveSub") : (mine && mine.s === "sent" ? t("deadSub") : t("noAnsSub"));
+  const fresh = setView("res|" + lang + "|" + pub.rkey + "|" + live, () => `<div class="meta"><span class="chip round">${t("round", pub.round)}</span><span class="chip alive">♥ ${t("alive", pub.aliveAfter)}</span></div>
+    <div class="badge ${live ? "live" : "dead"}">${live ? "✓" : "✕"}</div>
     <div class="res ${live ? "live" : "dead"}">${live ? t("live") : t("dead")}</div>
-    <div class="mut">${esc(resultNote())}</div><div class="q" style="font-size:19px;margin-top:14px">${esc(qText())}</div>${countRows()}
-    <p class="mut">${t("left", pub.aliveAfter)}</p><p class="mut">${live ? t("waitNext") : ""}</p>`);
+    <p class="desc">${pub.result === "allSame" || pub.result === "noAnswers" ? "" : esc(sub)}</p>
+    ${tilesHTML()}${verdictHTML()}
+    <div class="foot">${live ? t("waitNext") : t("watchFoot")}</div>`);
   if (fresh) { if (live) confetti(); if (navigator.vibrate) navigator.vibrate(live ? [80, 60, 80] : 300); }
 }
 function renderSpect() {
   const ph = pub.phase, notJoined = !me;
   let body = "";
-  if (ph === "answer") body = `<div class="q">${esc(qText())}</div><p class="mut">${t("answering")}</p>`;
-  else if (ph === "reveal") body = `<div class="q" style="font-size:19px">${esc(qText())}</div>${countRows()}`;
+  if (ph === "answer") body = `<div class="q-card" style="font-size:21px">${esc(qText())}</div><p class="desc" style="margin-top:10px">${t("answering")}</p>`;
+  else if (ph === "reveal") body = `<div class="q-card" style="font-size:19px">${esc(qText())}</div>${tilesHTML()}${verdictHTML()}`;
   const left = ph === "reveal" ? pub.aliveAfter : pub.alive;
-  setView("spect|" + lang + "|" + ph + "|" + pub.rkey, () => `<div class="big">👀 ${t("spect")}</div>
-    ${notJoined ? `<p class="mut">${t("lateJoin")}</p>` : `<p class="mut">${esc(me.dname || me.name)} · ${t("dead")}</p>`}
-    <div class="card"><div class="round">${t("round", pub.round)}</div><div class="big" style="color:var(--C)">${t("left", left || 0)}</div></div>${body}`);
+  setView("spect|" + lang + "|" + ph + "|" + pub.rkey, () => `<div class="card spect-top"><div class="emoji">👀</div>
+      <div class="title" style="font-size:22px">${notJoined ? t("lateJoin") : t("spect")}</div>
+      <p class="desc">${notJoined ? t("lateSub") : t("spectSub")}</p></div>
+    <div class="card" style="text-align:left">
+      <div class="big-num" style="font-size:28px">${t("roundNow", pub.round || 1)}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px">
+        <div><div class="mut" style="font-size:14px">${t("aliveNow")}</div><div class="big-num">${t("ppl", left || 0)}</div></div><span class="livetag">LIVE</span>
+      </div></div>${body}
+    <div class="foot">${t("watchFoot")}</div>`);
 }
 function renderEnd() {
   const w = pub.winners || [];
   const win = me && me.st === "alive";
-  const fresh = setView("end|" + lang + "|" + pub.gid + "|" + win, () => `${win ? `<div class="res live">${t("winner")}</div>` : `<div class="big">${t("over")}</div>`}
-    <div class="card"><div class="mut">🏆 ${t("winners")}</div><div class="winners">${w.map(esc).join("<br>")}</div></div>`);
+  const fresh = setView("end|" + lang + "|" + pub.gid + "|" + win, () => `<div class="emoji">${win ? "🏆" : "👑"}</div>
+    <div class="title" style="color:var(--gold);font-size:${win ? 34 : 30}px">${win ? t("winner") : t("over")}</div>
+    <p class="desc">${win ? t("winnerSub") : ""}</p>
+    <div class="card"><div class="mut" style="margin-bottom:10px">🏆 ${t("winners")}</div><div class="winners">${w.map(n => `<span>${esc(n)}</span>`).join("")}</div></div>`);
   if (fresh && win) { confetti(); setTimeout(confetti, 900); }
 }
 function confetti() {
-  const cols = ["#ff4d6d", "#2ec4b6", "#ffbe0b", "#fff", "#a78bfa", "#2ee59d"];
+  const cols = ["#FFC84B", "#38BDF8", "#F65F6D", "#A78BFA", "#55D68A", "#fff"];
   for (let i = 0; i < 70; i++) {
     const d = document.createElement("div"); d.className = "conf";
     d.style.left = Math.random() * 100 + "vw"; d.style.background = cols[i % cols.length];
